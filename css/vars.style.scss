@@ -1,0 +1,23 @@
+$base-color: #210439;
+$contrast-color: #9476AB;
+$accent-color: #714C8F;
+
+:root {
+  --base-font-size: 16px;
+  --base-color: #{$base-color};
+  --contrast-color: #{$contrast-color};
+
+  --accent-color: #{$accent-color};
+  --color-primary-3: #381356;
+  --color-primary-4: #522B72;
+
+  --menu-background: #{transparentize(darken($base-color, 0.5), 0.9)};
+
+  --form-background-idle: #{transparentize(darken($accent-color, 0.5), 0.5)};
+  --form-background-hover: #{transparentize(darken($accent-color, 0.5), 0.25)};
+  --form-background-focus: #{transparentize(darken($accent-color, 0.5), 0.1)};
+
+  --form-text-color-idle: #{$contrast-color};
+  --form-text-color-hover: #{lighten($contrast-color, 40%)};
+  --form-text-color-focus: #{lighten($contrast-color, 45%)};
+}
