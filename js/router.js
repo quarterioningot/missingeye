@@ -23,12 +23,20 @@ const CONTENT_STORE = {
     "about": undefined
 };
 
+let MAIN_ROUTER = null;
+
 class Router extends HTMLElement {
 
     #baseUrl = ""
 
     constructor() {
         super();
+
+        if (MAIN_ROUTER) {
+            return;
+        }
+
+        MAIN_ROUTER = this;
 
         const ice = this.interceptClickEvent();
         if (document.addEventListener) {
