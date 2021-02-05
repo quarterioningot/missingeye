@@ -84,7 +84,7 @@ class Router extends HTMLElement {
             .replace("://", "<proto>")
             .replace("//", "/")
             .replace("<proto>", "://");
-        history.pushState({}, "", );
+        history.pushState({}, "", url);
     }
 
     interceptClickEvent() {
