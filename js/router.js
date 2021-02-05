@@ -1,12 +1,12 @@
 const ROUTE_MAP_INDEX = {
     id: "index",
-    location: "/index.html",
+    location: "index.html",
     pathname: "/"
 };
 
 const ROUTE_MAP_ABOUT = {
     id: "about",
-    location: "/about.html",
+    location: "about.html",
     pathname: "/about"
 };
 
