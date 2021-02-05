@@ -80,7 +80,11 @@ class Router extends HTMLElement {
             return;
         }
 
-        history.pushState({}, "", this.#baseUrl + route.pathname);
+        const url = (this.#baseUrl + route.pathname)
+            .replace("://", "<proto>")
+            .replace("//", "/")
+            .replace("<proto>", "://");
+        history.pushState({}, "", );
     }
 
     interceptClickEvent() {
