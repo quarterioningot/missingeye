@@ -25,6 +25,8 @@ const CONTENT_STORE = {
 
 class Router extends HTMLElement {
 
+    #baseUrl = ""
+
     constructor() {
         super();
 
@@ -39,6 +41,8 @@ class Router extends HTMLElement {
             const { pathname } = location;
             await this.loadPageContent(pathname, true);
         });
+
+        this.#baseUrl = document.querySelector("base").href;
     }
 
     /**
@@ -76,7 +80,7 @@ class Router extends HTMLElement {
             return;
         }
 
-        history.pushState({}, "", route.pathname);
+        history.pushState({}, "", this.#baseUrl + route.pathname);
     }
 
     interceptClickEvent() {
