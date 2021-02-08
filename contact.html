@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Little bite or a big bite?</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+<animated-wallpaper></animated-wallpaper>
+
+<div class="main-content">
+    <nav class="main-menu">
+        <a class="item" href="/" data-menu="home">Home</a>
+        <a class="item" href="/about">About</a>
+        <a class="item" href="/contact">Contact</a>
+    </nav>
+
+    <simple-router>
+        <section class="document-section contact-form">
+            <contact-form-container>
+                <h1>Drop us a message</h1>
+                <h2>You have reached our mailbox, please leave a message after the <random-text char-count="4"></random-text></h2>
+                <p>By entering any information in the form below you acknowledge that you are sharing sensitive information with us. We make no promise the entered information will be kept safe and thus refrain from using this form altogether.</p>
+                <form id="contact-form" class="contact-form">
+                    <input type="text" name="name" placeholder="Joanne Doe" required min="1" />
+                    <input type="email" name="email" placeholder="joannedoe@acme.com" required />
+                    <textarea name="message" placeholder="Your message here..." required></textarea>
+                    <button type="submit">send</button>
+                </form>
+                <p class="form-message" id="after-submit-text">Thank you for ignoring the warning and also for your correspondence. We will get back to you as soon as possible, in the mean time please feel free to browse the rest of our little site.</p>
+                <p class="form-message" id="error-text">Something went wrong while sending your request. A team of highly trained <random-text char-count="5"></random-text> has been dispatched to fix the problem.</p>
+            </contact-form-container>
+        </section>
+    </simple-router>
+
+    <footer>
+        <span class="console-input">Site Design by a Human?</span>
+    </footer>
+</div>
+
+<div class="loader-blinds"></div>
+<script type="module" src="js/script.js"></script>
+</body>
+
+</html>

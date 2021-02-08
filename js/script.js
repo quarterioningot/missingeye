@@ -2,11 +2,17 @@ import { LoadRouter } from "./router.js"
 import { LoadMenu } from "./menu.js"
 import { LoadRandomText } from "./random-text.js"
 import { LoadContent } from "./content.js"
+import { LoadContact } from "./contact.js"
+import { LoadBackground } from "./background.js"
+import { LoadCommander } from "./commander.js"
 
 LoadRouter()
 LoadMenu()
 LoadRandomText();
 LoadContent();
+LoadContact();
+LoadBackground();
+LoadCommander();
 
 // const CONFIG = {
 //     apiReadiness: "http://localhost:3000/health/ready",
