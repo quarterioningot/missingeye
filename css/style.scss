@@ -352,22 +352,26 @@ random-text {
   font-family: Monospaced, FreeMono, Serif;
 }
 
-.console-input {
-  padding: 10px 40px;
-  display: block;
-  position: relative;
-  font-size: 2rem;
-  outline: 0 solid transparent;
-  margin-left: 10px;
+console-commander {
   width: 100%;
-  max-height: 30px;
-  overflow: hidden;
-  white-space: nowrap;
 
-  &::before {
-    content: ">";
-    position: absolute;
-    top: 11px;
-    left: 8px;
+  > .console-input {
+    padding: 10px 40px;
+    display: block;
+    position: relative;
+    font-size: 2rem;
+    outline: 0 solid transparent;
+    margin-left: 10px;
+    width: auto;
+    max-height: 30px;
+    overflow: hidden;
+    white-space: nowrap;
+
+    &::before {
+      content: ">";
+      position: absolute;
+      top: 11px;
+      left: 8px;
+    }
   }
 }

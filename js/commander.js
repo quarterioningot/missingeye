@@ -1,8 +1,12 @@
+const argumentSplitter = /("[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'|\/[^\/\\]*(?:\\[\S\s][^\/\\]*)*\/[gimy]*(?=\s|$)|(?:\\\s|\S)+)/g;
+
 class ConsoleArgument {
 
     #command = ""
     #verb = ""
     #args = []
+    #argsMap = {}
+    #argsIgnored = []
 
     constructor(command) {
         this.#command = command
@@ -11,10 +15,52 @@ class ConsoleArgument {
     }
 
     #process() {
-        const explodedCommand = this.#command.split(" ");
+        const explodedCommand = this.#command.split(argumentSplitter).filter(s => {
+            return s && s !== " ";
+        });
 
         this.#verb = explodedCommand[0];
-        this.#args = explodedCommand.slice(1, explodedCommand.length)
+        const args = explodedCommand.slice(1, explodedCommand.length)
+
+        let index = 0;
+        let processingSwitches = false;
+        while (index < args.length) {
+            const arg = args[index];
+            if (this.#testSwitch(arg)) {
+                processingSwitches = true;
+
+                const equalIndex = arg.indexOf("=");
+                if (equalIndex >= 0) {
+                    const key = arg.slice(0, equalIndex);
+                    this.#argsMap[key] = arg.slice(equalIndex + 1, arg.length);
+                    index++
+                    continue;
+                }
+
+                const nextArg = args[index + 1];
+                if (this.#testSwitch(nextArg)) {
+                    index++;
+                    this.#argsMap[arg] = true;
+                    continue;
+                }
+
+                index+=2;
+                this.#argsMap[arg] = nextArg;
+                continue;
+            }
+
+            if (processingSwitches) {
+                this.#argsIgnored.push(arg);
+            } else {
+                this.#args.push(arg);
+            }
+
+            index++;
+        }
+    }
+
+    #testSwitch(arg) {
+        return arg && arg.startsWith("-") || arg.startsWith("--")
     }
 
     getVerb() {
@@ -23,6 +69,14 @@ class ConsoleArgument {
 
     getArgs() {
         return this.#args;
+    }
+
+    getSwitch(key) {
+        return this.#argsMap[key];
+    }
+
+    getIgnored(key) {
+        return this.#argsIgnored;
     }
 
 }
@@ -59,7 +113,11 @@ class ConsoleCommander extends HTMLElement {
         this.#consoleInput.innerText = ""
 
         const commandArgs = new ConsoleArgument(command);
-        console.log(commandArgs);
+        const event = new CustomEvent("console-commander", {
+            detail: commandArgs
+        });
+
+        document.dispatchEvent(event)
     }
 }
 

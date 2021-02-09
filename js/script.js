@@ -5,6 +5,7 @@ import { LoadContent } from "./content.js"
 import { LoadContact } from "./contact.js"
 import { LoadBackground } from "./background.js"
 import { LoadCommander } from "./commander.js"
+import "./events/events.js"
 
 LoadRouter()
 LoadMenu()
