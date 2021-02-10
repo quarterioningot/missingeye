@@ -354,18 +354,46 @@ random-text {
 
 console-commander {
   width: 100%;
+  position: relative;
+
+  > span {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 40px;
+    display: block;
+    text-align: center;
+    vertical-align: unset;
+    font-size: 2rem;
+    line-height: 2;
+  }
 
   > .console-input {
-    padding: 10px 40px;
     display: block;
+    padding-left: 40px;
     position: relative;
     font-size: 2rem;
     outline: 0 solid transparent;
-    margin-left: 10px;
-    width: auto;
-    max-height: 30px;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
     white-space: nowrap;
+    background: none;
+    color: var(--form-text-color-idle);
+
+    &:hover {
+      background-color: var(--form-background-hover);
+      color: var(--form-text-color-hover);
+    }
+
+    &:focus {
+      background-color: var(--form-background-focus);
+      color: var(--form-text-color-focus);
+    }
+
+    &::placeholder {
+      color: var(--form-text-color-idle);
+    }
 
     &::before {
       content: ">";

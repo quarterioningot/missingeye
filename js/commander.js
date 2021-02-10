@@ -1,4 +1,8 @@
 const argumentSplitter = /("[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'|\/[^\/\\]*(?:\\[\S\s][^\/\\]*)*\/[gimy]*(?=\s|$)|(?:\\\s|\S)+)/g;
+const template = `
+<span>&gt;</span>
+<input type="text" id="console-input" class="console-input" placeholder="Site design by human" />
+`
 
 class ConsoleArgument {
 
@@ -88,6 +92,8 @@ class ConsoleCommander extends HTMLElement {
     constructor() {
         super();
 
+        this.innerHTML = template
+
         this.#consoleInput = document.querySelector("#console-input");
 
         if (!this.#consoleInput) {
@@ -109,8 +115,8 @@ class ConsoleCommander extends HTMLElement {
     }
 
     #onEnter() {
-        const command = this.#consoleInput.innerText;
-        this.#consoleInput.innerText = ""
+        const command = this.#consoleInput.value;
+        this.#consoleInput.value = ""
 
         const commandArgs = new ConsoleArgument(command);
         const event = new CustomEvent("console-commander", {

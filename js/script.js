@@ -5,7 +5,7 @@ import { LoadContent } from "./content.js"
 import { LoadContact } from "./contact.js"
 import { LoadBackground } from "./background.js"
 import { LoadCommander } from "./commander.js"
-import "./events/events.js"
+import { ROLL_RESULT_EVENT } from "./events/events.js";
 
 LoadRouter()
 LoadMenu()
@@ -57,3 +57,7 @@ LoadCommander();
 // document.addEventListener("ME:ApiReady", async () => {
 //     // not yet implemented
 // })
+
+document.addEventListener(ROLL_RESULT_EVENT, e => {
+    console.log(e.detail)
+})
