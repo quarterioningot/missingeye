@@ -10,12 +10,36 @@ const ROUTE_MAP_ABOUT = {
     pathname: "/about"
 };
 
+const ROUTE_MAP_CONTACT = {
+    id: "contact",
+    location: "contact.html",
+    pathname: "/contact"
+};
+
+const ROUTE_MAP_PHOTOGRAPHS = {
+    id: "photographs",
+    location: "photographs/index.html",
+    pathname: "/photographs"
+};
+
+const ROUTE_MAP_PHOTOGRAPH = {
+    id: "photograph",
+    location: "photographs/photograph.html",
+    pathname: "/photographs/photograph"
+};
+
 const ROUTE_MAP = {
     "": ROUTE_MAP_INDEX,
     "/": ROUTE_MAP_INDEX,
     "/index.html": ROUTE_MAP_INDEX,
     "/about": ROUTE_MAP_ABOUT,
-    "/about.html": ROUTE_MAP_ABOUT
+    "/about.html": ROUTE_MAP_ABOUT,
+    "/contact": ROUTE_MAP_CONTACT,
+    "/contact.html": ROUTE_MAP_CONTACT,
+    "/photographs": ROUTE_MAP_PHOTOGRAPHS,
+    "/photographs/index.html": ROUTE_MAP_PHOTOGRAPHS,
+    "/photographs/photograph": ROUTE_MAP_PHOTOGRAPH,
+    "/photographs/photograph.html": ROUTE_MAP_PHOTOGRAPH,
 };
 
 const CONTENT_STORE = {

@@ -7,6 +7,17 @@
   grid-gap: 20px;
   overflow: hidden;
 
+  &.focussed {
+    grid-template-columns: auto;
+    grid-gap: 0;
+
+    img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+  }
+
   > figure {
     position: relative;
     margin: 20px auto 0;
