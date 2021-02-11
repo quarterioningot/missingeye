@@ -29,9 +29,6 @@ async function start() {
         templateContentElement.innerHTML = targetContentElement.innerHTML
 
         const result = templateDom.serialize();
-
-        console.log(result);
-
         await writeFile(target, result)
     }
 }

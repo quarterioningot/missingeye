@@ -49,10 +49,13 @@
     }
 
     > figcaption {
-      height: 30px;
+      height: auto;
       font-size: 1rem;
       text-align-last: center;
-      margin-top: 15px
+      margin-top: 15px;
+      width: 280px;
+      padding: 0 10px;
+      text-align: center;
     }
   }
 }
