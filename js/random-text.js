@@ -39,7 +39,7 @@ class RandomText extends HTMLElement {
             await delay(100);
             isRandomizing = false;
 
-            this.start(charCount);
+            this._start(charCount);
         })
     }
 }

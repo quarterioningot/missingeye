@@ -1,0 +1,47 @@
+.image-gallery {
+  $imageWidth: 300px;
+  $imageHeight: 300px;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($imageWidth, 1fr));
+  grid-gap: 20px;
+  overflow: hidden;
+
+  > figure {
+    position: relative;
+    margin: 20px auto 0;
+
+    > a {
+      display: flex;
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: $imageHeight;
+      font-size: 4rem;
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--base-color);
+
+      &:hover {
+        opacity: 0.75;
+      }
+    }
+
+    > img {
+      width: $imageWidth;
+      height: $imageHeight;
+      object-fit: cover;
+      padding: 0;
+    }
+
+    > figcaption {
+      height: 30px;
+      font-size: 1rem;
+      text-align-last: center;
+      margin-top: 15px
+    }
+  }
+}

@@ -1,6 +1,6 @@
 const argumentSplitter = /("[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'|\/[^\/\\]*(?:\\[\S\s][^\/\\]*)*\/[gimy]*(?=\s|$)|(?:\\\s|\S)+)/g;
 const template = `
-<span>&gt;</span>
+<div>&gt;</div>
 <input type="text" id="console-input" class="console-input" placeholder="Site design by human" />
 `
 
