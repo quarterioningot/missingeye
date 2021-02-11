@@ -14,7 +14,7 @@ class ContactFormContainer extends HTMLElement {
         contactForm.addEventListener("submit", e => {
             e.preventDefault();
 
-            const result = this.submitForm();
+            const result = this._submitForm();
 
             if (!result) {
                 errorText.style.display = "block";
@@ -27,7 +27,7 @@ class ContactFormContainer extends HTMLElement {
         })
     }
 
-    submitForm() {
+    _submitForm() {
         return false;
     }
 }

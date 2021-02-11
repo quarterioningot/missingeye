@@ -14,7 +14,7 @@ class AsyncContent extends HTMLElement {
             throw new Error("Path attribute is invalid");
         }
 
-        this.load(path).then();
+        this._load(path).then();
     }
 
     /**
@@ -22,7 +22,7 @@ class AsyncContent extends HTMLElement {
      * @param path
      * @returns {Promise<string|null>}
      */
-    async load(path) {
+    async _load(path) {
         const responseContent = await fetch(`${CONFIG.apiBase}/file/${path}.md`)
         if (responseContent.status !== 200) {
             return null

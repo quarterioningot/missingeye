@@ -27,7 +27,7 @@ let MAIN_ROUTER = null;
 
 class Router extends HTMLElement {
 
-    #baseUrl = ""
+    _baseUrl = ""
 
     constructor() {
         super();
@@ -38,7 +38,7 @@ class Router extends HTMLElement {
 
         MAIN_ROUTER = this;
 
-        const ice = this.interceptClickEvent();
+        const ice = this._interceptClickEvent();
         if (document.addEventListener) {
             document.addEventListener("click", ice);
         } else if (document.attachEvent) {
@@ -47,10 +47,10 @@ class Router extends HTMLElement {
 
         window.addEventListener("popstate", async (event) => {
             const { pathname } = location;
-            await this.loadPageContent(pathname, true);
+            await this._loadPageContent(pathname, true);
         });
 
-        this.#baseUrl = document.querySelector("base").href;
+        this._baseUrl = document.querySelector("base").href;
     }
 
     /**
@@ -58,7 +58,7 @@ class Router extends HTMLElement {
      * @param {string} pageId
      * @param {boolean?} restoreState
      */
-    async loadPageContent(pageId, restoreState) {
+    async _loadPageContent(pageId, restoreState) {
         const route = ROUTE_MAP[pageId];
         if (!route) {
             alert("You're a naughty one, aren't you... ;)");
@@ -88,14 +88,14 @@ class Router extends HTMLElement {
             return;
         }
 
-        const url = (this.#baseUrl + route.pathname)
+        const url = (this._baseUrl + route.pathname)
             .replace("://", "<proto>")
             .replace("//", "/")
             .replace("<proto>", "://");
         history.pushState({}, "", url);
     }
 
-    interceptClickEvent() {
+    _interceptClickEvent() {
         return async (e) => {
             const target = e.target || e.srcElement;
             if (target.tagName !== "A") {
@@ -105,7 +105,7 @@ class Router extends HTMLElement {
             e.preventDefault();
             const href = target.getAttribute("href");
 
-            await this.loadPageContent(href);
+            await this._loadPageContent(href);
         }
     }
 

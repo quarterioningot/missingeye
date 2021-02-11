@@ -17,10 +17,10 @@ class RandomText extends HTMLElement {
         const filler = Array(charCount).fill(".", 0, charCount).join("");
         this.innerText = filler;
 
-        this.start(charCount);
+        this._start(charCount);
     }
 
-    start(charCount) {
+    _start(charCount) {
         let isRandomizing = false;
 
         window.requestAnimationFrame(async () => {

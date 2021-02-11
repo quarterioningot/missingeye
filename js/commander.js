@@ -6,117 +6,117 @@ const template = `
 
 class ConsoleArgument {
 
-    #command = ""
-    #verb = ""
-    #args = []
-    #argsMap = {}
-    #argsIgnored = []
+    _command = ""
+    _verb = ""
+    _args = []
+    _argsMap = {}
+    _argsIgnored = []
 
     constructor(command) {
-        this.#command = command
+        this._command = command
 
-        this.#process();
+        this._process();
     }
 
-    #process() {
-        const explodedCommand = this.#command.split(argumentSplitter).filter(s => {
+    _process() {
+        const explodedCommand = this._command.split(argumentSplitter).filter(s => {
             return s && s !== " ";
         });
 
-        this.#verb = explodedCommand[0];
+        this._verb = explodedCommand[0];
         const args = explodedCommand.slice(1, explodedCommand.length)
 
         let index = 0;
         let processingSwitches = false;
         while (index < args.length) {
             const arg = args[index];
-            if (this.#testSwitch(arg)) {
+            if (this._testSwitch(arg)) {
                 processingSwitches = true;
 
                 const equalIndex = arg.indexOf("=");
                 if (equalIndex >= 0) {
                     const key = arg.slice(0, equalIndex);
-                    this.#argsMap[key] = arg.slice(equalIndex + 1, arg.length);
+                    this._argsMap[key] = arg.slice(equalIndex + 1, arg.length);
                     index++
                     continue;
                 }
 
                 const nextArg = args[index + 1];
-                if (this.#testSwitch(nextArg)) {
+                if (this._testSwitch(nextArg)) {
                     index++;
-                    this.#argsMap[arg] = true;
+                    this._argsMap[arg] = true;
                     continue;
                 }
 
                 index+=2;
-                this.#argsMap[arg] = nextArg;
+                this._argsMap[arg] = nextArg;
                 continue;
             }
 
             if (processingSwitches) {
-                this.#argsIgnored.push(arg);
+                this._argsIgnored.push(arg);
             } else {
-                this.#args.push(arg);
+                this._args.push(arg);
             }
 
             index++;
         }
     }
 
-    #testSwitch(arg) {
+    _testSwitch(arg) {
         return arg && arg.startsWith("-") || arg.startsWith("--")
     }
 
     getVerb() {
-        return this.#verb;
+        return this._verb;
     }
 
     getArgs() {
-        return this.#args;
+        return this._args;
     }
 
     getSwitch(key) {
-        return this.#argsMap[key];
+        return this._argsMap[key];
     }
 
     getIgnored(key) {
-        return this.#argsIgnored;
+        return this._argsIgnored;
     }
 
 }
 
 class ConsoleCommander extends HTMLElement {
 
-    #consoleInput
+    _consoleInput
 
     constructor() {
         super();
 
         this.innerHTML = template
 
-        this.#consoleInput = document.querySelector("#console-input");
+        this._consoleInput = document.querySelector("#console-input");
 
-        if (!this.#consoleInput) {
+        if (!this._consoleInput) {
             return;
         }
 
-        this.#consoleInput.addEventListener("keydown", e => {
+        this._consoleInput.addEventListener("keydown", e => {
             if (e.key === "Enter" || e.keyCode === 13) {
                 e.preventDefault()
             }
         });
 
-        this.#consoleInput.addEventListener("keyup", e => {
+        this._consoleInput.addEventListener("keyup", e => {
             if (e.key === "Enter" || e.keyCode === 13) {
                 e.preventDefault()
-                this.#onEnter();
+                this._onEnter();
             }
         });
     }
 
-    #onEnter() {
-        const command = this.#consoleInput.value;
-        this.#consoleInput.value = ""
+    _onEnter() {
+        const command = this._consoleInput.value;
+        this._consoleInput.value = ""
 
         const commandArgs = new ConsoleArgument(command);
         const event = new CustomEvent("console-commander", {
