@@ -59,5 +59,6 @@ LoadCommander();
 // })
 
 document.addEventListener(ROLL_RESULT_EVENT, e => {
-    console.log(e.detail)
+    const ci = document.querySelector(".console-input");
+    ci.setAttribute("placeholder", `You rolled ${e.detail.roll}`)
 })
