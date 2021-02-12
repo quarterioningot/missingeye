@@ -1,12 +1,15 @@
 const { JSDOM } = require("jsdom");
 const { ExifImage } = require("exif");
-const { promises: { readFile, readdir, writeFile } } = require("fs");
+const sharp = require("sharp");
+const path = require("path")
+const { promises: { readFile, writeFile } } = require("fs");
 
 const { findByType } = require("../utils/file-search.util")
 
 async function start() {
     const target = "./photographs/index.html";
-    const images = await findByType("./assets/images/gallery", ".jpg");
+    const images = (await findByType("./assets/images/gallery", ".jpg"))
+        .filter(x => !x.includes("_thumb"));
 
     const galleryDom = await getDOM(target);
     if (!galleryDom) {
@@ -49,17 +52,70 @@ async function start() {
             ? exifData.image.XPComment.filter(x => x > 0).map(x => String.fromCharCode(x)).join("")
             : "No caption available.";
 
-        img.src = `/${image}`;
+        const thumbPath = await resizeImage(image, "thumb", 500);
+        img.src = `/${thumbPath}`;
         img.alt = captionText;
-        anchor.href = `/photographs/${image}`
-        caption.innerHTML = "";
-        caption.appendChild(galleryDom.window.document.createTextNode(captionText))
 
-        imageGallery.appendChild(clonedGalleryFigure)
+        const linkName = path.basename(image, path.extname(image));
+        anchor.href = `/photographs/${linkName}`
+        caption.innerHTML = "";
+        caption.appendChild(galleryDom.window.document.createTextNode(captionText));
+
+        imageGallery.appendChild(clonedGalleryFigure);
+
+        await createImageView(linkName, captionText, image);
     }
 
     const result = galleryDom.serialize();
     await writeFile(target, result)
+}
+
+async function resizeImage(imagePath, nameDecoration, size) {
+    const image = await readFile(imagePath);
+
+    const imageDir = path.dirname(imagePath);
+    const imageExt = path.extname(imagePath);
+    const imageName = path.basename(imagePath, imageExt);
+
+    const newImagePath = path.join(imageDir, `${imageName}_thumb${imageExt}`)
+
+    await sharp(image)
+        .resize(size)
+        .toFile(path.join(imageDir, `${imageName}_${nameDecoration}${imageExt}`))
+
+    return newImagePath;
+}
+
+async function createImageView(title, description, src) {
+    const imageViewDom = await getDOM(path.join("./", "photographs", "photograph.html"));
+    if (!imageViewDom) {
+        return;
+    }
+
+    const imageViewFigure = imageViewDom.window.document.querySelector(".image-gallery figure");
+    if (!imageViewFigure) {
+        return;
+    }
+
+    const header = imageViewDom.window.document.querySelector("h1");
+    if (!header) {
+        return;
+    }
+
+    const img = imageViewFigure.querySelector("img");
+    const caption = imageViewFigure.querySelector("figcaption");
+
+    header.innerHTML = "";
+    header.appendChild(imageViewDom.window.document.createTextNode(title.split("-").map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(" ")))
+
+    img.src = src
+
+    caption.innerHTML = "";
+    caption.appendChild(imageViewDom.window.document.createTextNode(description))
+
+    const result = imageViewDom.serialize();
+    const outputPath = path.join("photographs", `${title}.html`)
+    return await writeFile(outputPath, result);
 }
 
 async function getDOM(templateName) {
