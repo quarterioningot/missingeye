@@ -29,7 +29,7 @@ const httpServer = http.createServer(async (request, response) => {
         let resultData = data;
         if (responseContentType === "text/html") {
             let stringData = data.toString();
-            resultData = stringData.replace(`<base href="https://quarterioningot.github.io/missingeye/" target="_blank">`, `<base href="http://${host}:${port}" target="_blank">`)
+            resultData = stringData.replace(`<base href="https://missingeye.com/" target="_blank">`, `<base href="http://${host}:${port}" target="_blank">`)
         }
         response.writeHead(200);
         response.end(resultData);
