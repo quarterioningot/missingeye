@@ -108,7 +108,7 @@ async function createImageView(title, description, src) {
     header.innerHTML = "";
     header.appendChild(imageViewDom.window.document.createTextNode(title.split("-").map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(" ")))
 
-    img.src = src
+    img.src = `/${src}`;
 
     caption.innerHTML = "";
     caption.appendChild(imageViewDom.window.document.createTextNode(description))

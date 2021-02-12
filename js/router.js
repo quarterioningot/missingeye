@@ -1,51 +1,4 @@
-const ROUTE_MAP_INDEX = {
-    id: "index",
-    location: "index.html",
-    pathname: "/"
-};
-
-const ROUTE_MAP_ABOUT = {
-    id: "about",
-    location: "about.html",
-    pathname: "/about"
-};
-
-const ROUTE_MAP_CONTACT = {
-    id: "contact",
-    location: "contact.html",
-    pathname: "/contact"
-};
-
-const ROUTE_MAP_PHOTOGRAPHS = {
-    id: "photographs",
-    location: "photographs/index.html",
-    pathname: "/photographs"
-};
-
-const ROUTE_MAP_PHOTOGRAPH = {
-    id: "photograph",
-    location: "photographs/photograph.html",
-    pathname: "/photographs/photograph"
-};
-
-const ROUTE_MAP = {
-    "": ROUTE_MAP_INDEX,
-    "/": ROUTE_MAP_INDEX,
-    "/index.html": ROUTE_MAP_INDEX,
-    "/about": ROUTE_MAP_ABOUT,
-    "/about.html": ROUTE_MAP_ABOUT,
-    "/contact": ROUTE_MAP_CONTACT,
-    "/contact.html": ROUTE_MAP_CONTACT,
-    "/photographs": ROUTE_MAP_PHOTOGRAPHS,
-    "/photographs/index.html": ROUTE_MAP_PHOTOGRAPHS,
-    "/photographs/photograph": ROUTE_MAP_PHOTOGRAPH,
-    "/photographs/photograph.html": ROUTE_MAP_PHOTOGRAPH,
-};
-
-const CONTENT_STORE = {
-    "index": undefined,
-    "about": undefined
-};
+const CONTENT_STORE = {};
 
 let MAIN_ROUTER = null;
 
@@ -83,17 +36,16 @@ class Router extends HTMLElement {
      * @param {boolean?} restoreState
      */
     async _loadPageContent(pageId, restoreState) {
-        const route = ROUTE_MAP[pageId];
-        if (!route) {
-            alert("You're a naughty one, aren't you... ;)");
+        if (!pageId) {
+            pageId = "/"
         }
 
-        if (!restoreState && route.pathname === location.pathname) {
-            return;
+        if (pageId.endsWith("/")) {
+            pageId = pageId + "index"
         }
 
-        if (!CONTENT_STORE[route.id]) {
-            const response = await fetch(route.location);
+        if (!CONTENT_STORE[pageId]) {
+            const response = await fetch(pageId + ".html");
             if (response.status !== 200) {
                 alert("You're a naughty one, aren't you... ;)");
             }
@@ -103,16 +55,16 @@ class Router extends HTMLElement {
             const mockElement = document.createElement("div");
             mockElement.innerHTML = responseData;
 
-            CONTENT_STORE[route.id] = mockElement.querySelector("simple-router").innerHTML;
+            CONTENT_STORE[pageId] = mockElement.querySelector("simple-router").innerHTML;
         }
 
-        this.innerHTML = CONTENT_STORE[route.id];
+        this.innerHTML = CONTENT_STORE[pageId];
 
         if (restoreState) {
             return;
         }
 
-        const url = (this._baseUrl + route.pathname)
+        const url = (this._baseUrl + pageId)
             .replace("://", "<proto>")
             .replace("//", "/")
             .replace("<proto>", "://");
