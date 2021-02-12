@@ -44,9 +44,10 @@ class Router extends HTMLElement {
         if (pageId.endsWith("/")) {
             pageUri = pageId + "index"
         }
-
+``
         if (!CONTENT_STORE[pageId]) {
-            const response = await fetch(pageUri + ".html");
+            const url = cleanUrl(this._baseUrl + pageUri + ".html");
+            const response = await fetch(url);
             if (response.status !== 200) {
                 alert("You're a naughty one, aren't you... ;)");
             }
@@ -65,10 +66,7 @@ class Router extends HTMLElement {
             return;
         }
 
-        const url = (this._baseUrl + pageId)
-            .replace("://", "<proto>")
-            .replace("//", "/")
-            .replace("<proto>", "://");
+        const url = cleanUrl(this._baseUrl + pageId);
         history.pushState({}, "", url);
     }
 
@@ -86,6 +84,12 @@ class Router extends HTMLElement {
         }
     }
 
+}
+
+function cleanUrl(url) {
+    return url.replace("://", "<proto>")
+        .replace("//", "/")
+        .replace("<proto>", "://");
 }
 
 export function LoadRouter() {
