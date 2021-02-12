@@ -5,6 +5,7 @@ let MAIN_ROUTER = null;
 class Router extends HTMLElement {
 
     _baseUrl = ""
+    _basePath = ""
 
     constructor() {
         super();
@@ -28,6 +29,8 @@ class Router extends HTMLElement {
         });
 
         this._baseUrl = document.querySelector("base").href;
+        const url = new URL("/", this._baseUrl);
+        this._basePath = url.pathname;
     }
 
     /**
@@ -60,7 +63,7 @@ class Router extends HTMLElement {
             CONTENT_STORE[pageId] = mockElement.querySelector("simple-router").innerHTML;
         }
 
-        this.innerHTML = CONTENT_STORE[pageId];
+        this.innerHTML = CONTENT_STORE[this._basePath + pageId];
 
         if (restoreState) {
             return;
