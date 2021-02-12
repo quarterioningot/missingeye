@@ -53,7 +53,7 @@ async function start() {
             : "No caption available.";
 
         const thumbPath = await resizeImage(image, "thumb", 500);
-        img.src = `/${thumbPath}`;
+        img.src = thumbPath;
         img.alt = captionText;
 
         const linkName = path.basename(image, path.extname(image));
@@ -111,7 +111,7 @@ async function createImageView(linkName, title, description, src) {
     header.innerHTML = "";
     header.appendChild(imageViewDom.window.document.createTextNode(title))
 
-    img.src = `/${src}`;
+    img.src = src;
 
     caption.innerHTML = "";
     caption.appendChild(imageViewDom.window.document.createTextNode(description))
