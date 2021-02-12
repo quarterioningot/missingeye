@@ -29,7 +29,7 @@ class Router extends HTMLElement {
         });
 
         this._baseUrl = document.querySelector("base").href;
-        const url = new URL("/", this._baseUrl);
+        const url = new URL("", this._baseUrl);
         this._basePath = url.pathname;
     }
 
@@ -48,7 +48,7 @@ class Router extends HTMLElement {
             pageUri = pageId + "index"
         }
 
-        const contentID = this._basePath + pageId;
+        const contentID = cleanUrl(this._basePath + pageId);
 ``
         if (!CONTENT_STORE[pageId]) {
             const url = cleanUrl(this._baseUrl + pageUri + ".html");
