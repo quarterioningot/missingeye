@@ -40,12 +40,13 @@ class Router extends HTMLElement {
             pageId = "/"
         }
 
+        let pageUri = pageId
         if (pageId.endsWith("/")) {
-            pageId = pageId + "index"
+            pageUri = pageId + "index"
         }
 
         if (!CONTENT_STORE[pageId]) {
-            const response = await fetch(pageId + ".html");
+            const response = await fetch(pageUri + ".html");
             if (response.status !== 200) {
                 alert("You're a naughty one, aren't you... ;)");
             }

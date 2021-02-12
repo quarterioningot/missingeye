@@ -63,7 +63,10 @@ async function start() {
 
         imageGallery.appendChild(clonedGalleryFigure);
 
-        await createImageView(linkName, captionText, image);
+        const title = exifData && exifData.image && exifData.image.XPTitle
+            ? exifData.image.XPTitle.filter(x => x > 0).map(x => String.fromCharCode(x)).join("")
+            : linkName.split("-").map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(" ")
+        await createImageView(linkName, title, captionText, image);
     }
 
     const result = galleryDom.serialize();
@@ -86,7 +89,7 @@ async function resizeImage(imagePath, nameDecoration, size) {
     return newImagePath;
 }
 
-async function createImageView(title, description, src) {
+async function createImageView(linkName, title, description, src) {
     const imageViewDom = await getDOM(path.join("./", "photographs", "photograph.html"));
     if (!imageViewDom) {
         return;
@@ -106,7 +109,7 @@ async function createImageView(title, description, src) {
     const caption = imageViewFigure.querySelector("figcaption");
 
     header.innerHTML = "";
-    header.appendChild(imageViewDom.window.document.createTextNode(title.split("-").map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(" ")))
+    header.appendChild(imageViewDom.window.document.createTextNode(title))
 
     img.src = `/${src}`;
 
@@ -114,7 +117,7 @@ async function createImageView(title, description, src) {
     caption.appendChild(imageViewDom.window.document.createTextNode(description))
 
     const result = imageViewDom.serialize();
-    const outputPath = path.join("photographs", `${title}.html`)
+    const outputPath = path.join("photographs", `${linkName}.html`)
     return await writeFile(outputPath, result);
 }
 
