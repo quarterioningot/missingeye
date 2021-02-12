@@ -47,7 +47,7 @@ class Router extends HTMLElement {
         if (pageId.endsWith("/")) {
             pageUri = pageId + "index"
         }
-        ``
+
         if (!CONTENT_STORE[pageId]) {
             const contentID = cleanUrl(this._basePath + pageId);
             const url = cleanUrl(this._baseUrl + pageUri + ".html");
