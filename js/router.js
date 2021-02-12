@@ -47,6 +47,8 @@ class Router extends HTMLElement {
         if (pageId.endsWith("/")) {
             pageUri = pageId + "index"
         }
+
+        const contentID = this._basePath + pageId;
 ``
         if (!CONTENT_STORE[pageId]) {
             const url = cleanUrl(this._baseUrl + pageUri + ".html");
@@ -60,10 +62,10 @@ class Router extends HTMLElement {
             const mockElement = document.createElement("div");
             mockElement.innerHTML = responseData;
 
-            CONTENT_STORE[pageId] = mockElement.querySelector("simple-router").innerHTML;
+            CONTENT_STORE[contentID] = mockElement.querySelector("simple-router").innerHTML;
         }
 
-        this.innerHTML = CONTENT_STORE[this._basePath + pageId];
+        this.innerHTML = CONTENT_STORE[contentID];
 
         if (restoreState) {
             return;
