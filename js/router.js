@@ -85,6 +85,10 @@ class Router extends HTMLElement {
             e.preventDefault();
             const href = target.getAttribute("href");
 
+            if (!href) {
+                return;
+            }
+
             await this._loadPageContent(href);
         }
     }
