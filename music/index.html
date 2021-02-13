@@ -1,0 +1,53 @@
+<!DOCTYPE html><!--suppress HtmlUnknownTarget -->
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <base href="https://missingeye.com/" target="_blank">
+    <title>Little bite or a big bite?</title>
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<animated-wallpaper></animated-wallpaper>
+
+<div class="main-content">
+    <nav class="main-menu">
+        <a class="item" data-menu="home" href="/">Home</a>
+        <a class="item" href="/about">About</a>
+        <a class="item" href="/contact">Contact</a>
+    </nav>
+
+    <simple-router>
+        <section class="document-section">
+            <h1>Music</h1>
+            <p>
+                Sound, a vibration that propagates as an acoustic wave, through a transmission medium such as gas,
+                liquid or solid. Our all time favorite is a mix of mostly 80% nitrogen (N<sub>2</sub>)
+                and 20% Oxygen (O<sub>2</sub>).
+            </p>
+
+            <section class="music-gallery">
+                <audio-player>
+                    <figure>
+                        <img src="" alt="album art"/>
+                        <a>Play</a>
+                    </figure>
+
+                    <header>Music Title</header>
+                    <input type="range" min="1" max="100" value="50">
+                </audio-player>
+            </section>
+        </section>
+    </simple-router>
+
+    <footer>
+        <console-commander></console-commander>
+    </footer>
+</div>
+
+<div class="loader-blinds"></div>
+<script src="js/script.js" type="module"></script>
+
+
+</body>
+</html>

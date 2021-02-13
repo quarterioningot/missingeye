@@ -1,0 +1,26 @@
+.music-gallery {
+  audio {
+    display: none;
+    visibility: collapse;
+  }
+
+  audio-player {
+    display: grid;
+
+    figure {
+      position: relative;
+      width: 150px;
+      height: 150px;
+
+      a {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    }
+
+
+  }
+}

@@ -5,6 +5,7 @@ import { LoadContent } from "./content.js"
 import { LoadContact } from "./contact.js"
 import { LoadBackground } from "./background.js"
 import { LoadCommander } from "./commander.js"
+import { LoadAudioPlayer } from "./audio-player.js"
 import { ROLL_RESULT_EVENT } from "./events/events.js";
 
 LoadRouter()
@@ -14,6 +15,7 @@ LoadContent();
 LoadContact();
 LoadBackground();
 LoadCommander();
+LoadAudioPlayer();
 
 // const CONFIG = {
 //     apiReadiness: "http://localhost:3000/health/ready",
