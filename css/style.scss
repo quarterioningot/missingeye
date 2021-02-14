@@ -60,6 +60,21 @@ br {
   margin-bottom: 5px;
 }
 
+body {
+  > canvas {
+    display: block;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+}
+
 .background,
 .loader-blinds {
   position: fixed;

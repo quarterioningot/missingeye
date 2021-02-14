@@ -47,6 +47,7 @@ const mimeTypes = {
     ".js": "text/javascript",
     ".png": "image/png",
     ".ico": "image/x-icon",
+    ".mp3": "audio/mpeg",
 };
 
 const getContentType = pathName => {

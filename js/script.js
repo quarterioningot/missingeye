@@ -6,6 +6,7 @@ import { LoadContact } from "./contact.js"
 import { LoadBackground } from "./background.js"
 import { LoadCommander } from "./commander.js"
 import { LoadAudioPlayer } from "./audio-player.js"
+import { LoadCanvasWrangler } from "./canvas-wrangler.js"
 import { ROLL_RESULT_EVENT } from "./events/events.js";
 
 LoadRouter()
@@ -16,6 +17,7 @@ LoadContact();
 LoadBackground();
 LoadCommander();
 LoadAudioPlayer();
+// LoadCanvasWrangler();
 
 // const CONFIG = {
 //     apiReadiness: "http://localhost:3000/health/ready",
@@ -84,8 +86,6 @@ document.addEventListener("audio-player", e => {
 
     const result = Math.round(animationDuration - (animationDuration / 2));
     baubleElement.style.animationDuration = `${result}ms`;
-
-    console.log("FFT:", pushValue);
 });
 
 window.addEventListener("DOMContentLoaded", () => {
