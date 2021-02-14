@@ -63,4 +63,37 @@ LoadAudioPlayer();
 document.addEventListener(ROLL_RESULT_EVENT, e => {
     const ci = document.querySelector(".console-input");
     ci.setAttribute("placeholder", `You rolled ${e.detail.roll}`)
+});
+
+let baubleElementDurations = [];
+
+document.addEventListener("audio-player", e => {
+    const pushValue = e.detail;
+    const baubleElements = document.querySelectorAll(".circle-container");
+
+    if (pushValue < 3) {
+        return;
+    }
+
+    const index = Math.round(Math.random() * baubleElements.length);
+    const baubleElement = baubleElements[index];
+    const animationDuration = baubleElementDurations[index];
+    if (Number.isNaN(animationDuration)) {
+        return;
+    }
+
+    const result = Math.round(animationDuration - (animationDuration / 2));
+    baubleElement.style.animationDuration = `${result}ms`;
+
+    console.log("FFT:", pushValue);
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+    const baubleElements = document.querySelectorAll(".circle-container");
+
+    for (const baubleElement of baubleElements) {
+        let basicDuration = Math.round(28000 + Math.random() * 20000)
+        baubleElementDurations.push(basicDuration);
+        baubleElement.style.animationDuration = `${basicDuration}ms`;
+    }
 })
