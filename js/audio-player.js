@@ -29,9 +29,12 @@ class AudioPlayer extends HTMLElement {
             return;
         }
 
+        const source = this.getAttribute("src");
+        if (!source) {
+            return;
+        }
 
-
-        this._getAudio("assets/music/gallery/back-to-darkness.mp3").then(duration => {
+        this._getAudio(source).then(duration => {
             this._progress.max = duration;
             this._updatePlayPauseButton();
             this._isReady = true;

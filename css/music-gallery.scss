@@ -10,7 +10,8 @@
     display: grid;
     grid-template-columns: $imageWidth auto;
     grid-template-rows: 30px auto 20px;
-    grid-gap: 10px;
+    grid-gap: 30px;
+    padding-bottom: 30px;
 
     h3, p, figure, img {
       padding: 0;
