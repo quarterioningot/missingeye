@@ -1,114 +1,140 @@
 import {delay} from "./utils.js";
 
-const template = `
-<audio src="{{audio-src}}" controls="false"></audio>
-`;
+const template = ``;
 
-const playTextNode = document.createTextNode("Play");
-const pauseTextNode = document.createTextNode("!PLay");
+class AudioManager {
 
-class AudioPlayer extends HTMLElement {
-    _player;
-    _progress;
-    _playPauseButton;
-    _audioContext;
+    /**
+     * List of tracks that can be played
+     * @type {{
+     *  audio: Audio
+     *  duration: number
+     *  isSeeking: boolean
+     *  isPlaying: boolean
+     *  onTimeUpdate: function(number)
+     *  onStateChange: function()
+     * }}
+     * @private
+     */
+    _tracks = {}
 
-    _isReady = false;
-    _isPlaying = false;
-    _isSeeking = false;
-
-    constructor() {
-        super();
-
-        // this.innerHTML = template;
-
-        this._progress = this.querySelector(`input[type="range"]`);
-        this._playPauseButton = this.querySelector(`.playpause-button`);
-
-        if (!this._progress || !this._playPauseButton) {
+    async play(src) {
+        if (!this._tracks[src]) {
             return;
         }
 
-        const source = this.getAttribute("src");
-        if (!source) {
+        for (const [key, track] of Object.entries(this._tracks)) {
+            if (!track || !(track.audio && track.isPlaying)) {
+                continue;
+            }
+
+            track.audio.pause();
+        }
+
+        if (!this._tracks[src].audio) {
+            await this._getAudio(src).then(duration => {
+                this._tracks[src].duration = duration;
+            });
+        }
+
+        this._tracks[src].audio.play();
+        this._tracks[src].isPlaying = true;
+    }
+
+    pause(src) {
+        if (!this._tracks[src]) {
             return;
         }
 
-        this._getAudio(source).then(duration => {
-            this._progress.max = duration;
-            this._updatePlayPauseButton();
-            this._isReady = true;
-        });
+        this._tracks[src].audio.pause();
+        this._tracks[src].isPlaying = false;
+    }
 
-        this._playPauseButton.addEventListener("click", async e => {
-            e.preventDefault()
+    /**
+     *
+     * @param src string
+     * @param onTimeUpdate function(number)
+     * @param onStateChange function()
+     */
+    registerAudio(src, onTimeUpdate, onStateChange) {
+        if (this._tracks[src]) {
+            return;
+        }
 
-            if (!this._isReady) {
+        this._tracks[src] = {
+            duration: 0,
+            isPlaying: false,
+            isSeeking: false,
+            onTimeUpdate,
+            onStateChange
+        }
+    }
+
+    seek(src, value) {
+        if (!this._tracks[src]) {
+            return;
+        }
+
+        this._tracks[src].audio.currentTime = value;
+    }
+
+    isPlaying(src) {
+        if (!this._tracks[src]) {
+            return false;
+        }
+
+        return this._tracks[src].isPlaying;
+    }
+
+    getDuration(src) {
+        if (!this._tracks[src]) {
+            return false;
+        }
+
+        return this._tracks[src].duration;
+    }
+
+    setIsSeeking(src, value) {
+        if (!this._tracks[src]) {
+            return false;
+        }
+
+        return this._tracks[src].isSeeking = value;
+    }
+
+    _getAudio(src) {
+        return new Promise((resolve, reject) => {
+            const context = this._tracks[src];
+            if (!context) {
+                reject();
                 return;
             }
 
-            if (this._isPlaying) {
-                this._player.pause();
-            } else {
-                if (!this._player) {
-                    if (this._audioContext) {
-                        this._audioContext.resume();
-                    }
-                }
-
-                this._player.play();
-            }
-        });
-
-        this._progress.addEventListener("change", () => {
-            const value = this._progress.value;
-            this._player.currentTime = value;
-        })
-
-        this._progress.addEventListener("mousedown", () => {
-            this._isSeeking = true;
-        });
-        this._progress.addEventListener("mouseup", () => {
-            this._isSeeking = false;
-        });
-    }
-
-    _getAudio(url) {
-        return new Promise((resolve, reject) => {
-            this._player = new Audio(url);
-            this._player.volume = 0.9;
-            this._player.addEventListener("durationchange", function() {
+            const player = new Audio(src);
+            context.audio = player;
+            player.volume = 0.9;
+            player.addEventListener("durationchange", function() {
                 if (this.duration !== Infinity || this.duration !== undefined) {
                     const duration = this.duration;
                     resolve(duration);
                 }
             }, false);
-            this._player.addEventListener("timeupdate", () => {
-                if (this._isSeeking) {
+            player.addEventListener("timeupdate", () => {
+                if (context.isSeeking) {
                     return;
                 }
-                this._progress.value = this._player.currentTime;
+                context.onTimeUpdate(player.currentTime);
             });
-            this._player.addEventListener("play", () => {
-                this._isPlaying = true;
-                this._updatePlayPauseButton();
-                this._startFFT();
+            player.addEventListener("play", () => {
+                context.isPlaying = true;
+                context.onStateChange()
             });
-            this._player.addEventListener("pause", () => {
-                this._isPlaying = false;
-                this._updatePlayPauseButton();
+            player.addEventListener("pause", () => {
+                context.isPlaying = false;
+                context.onStateChange()
             });
-            this._player.load();
+            player.load();
         });
-    }
-
-    _updatePlayPauseButton() {
-        this._playPauseButton.innerHTML = ""
-        if (this._isPlaying) {
-            this._playPauseButton.appendChild(pauseTextNode);
-        } else {
-            this._playPauseButton.appendChild(playTextNode);
-        }
     }
 
     _startFFT() {
@@ -130,7 +156,6 @@ class AudioPlayer extends HTMLElement {
         source.connect(analyser);
         analyser.connect(this._audioContext.destination);
 
-
         const getFFT = () => requestAnimationFrame(async () => {
             const dataArray = new Uint8Array(bufferLength);
             analyser.getByteTimeDomainData(dataArray);
@@ -149,6 +174,82 @@ class AudioPlayer extends HTMLElement {
         });
 
         getFFT();
+    }
+
+}
+
+const AUDIO_MANAGER = new AudioManager();
+
+
+const playTextNode = () => document.createTextNode("Play").cloneNode();
+const pauseTextNode = () => document.createTextNode("!Play").cloneNode();
+
+class AudioPlayer extends HTMLElement {
+    _player;
+    _progress;
+    _playPauseButton;
+
+    _source = undefined
+
+    constructor() {
+        super();
+
+        this._progress = this.querySelector(`input[type="range"]`);
+        this._playPauseButton = this.querySelector(`.playpause-button`);
+
+        if (!this._progress || !this._playPauseButton) {
+            return;
+        }
+
+        this._source = this.getAttribute("src");
+        if (!this._source) {
+            return;
+        }
+
+        AUDIO_MANAGER.registerAudio(this._source, (newTime) => {
+            this._progress.value = newTime;
+        }, () => {
+            this._updatePlayPauseButton();
+        });
+
+        this._updatePlayPauseButton();
+
+        this._playPauseButton.addEventListener("click", async e => {
+            e.preventDefault()
+
+            if (AUDIO_MANAGER.isPlaying(this._source)) {
+                AUDIO_MANAGER.pause(this._source);
+            } else {
+                await AUDIO_MANAGER.play(this._source);
+                this._progress.max = AUDIO_MANAGER.getDuration(this._source);
+            }
+
+            this._updatePlayPauseButton();
+        });
+
+        this._progress.addEventListener("change", () => {
+            const value = this._progress.value;
+            AUDIO_MANAGER.seek(this._source, value);
+        })
+
+        this._progress.addEventListener("mousedown", () => {
+            const value = this._progress.value;
+            AUDIO_MANAGER.setIsSeeking(this._source, true);
+        });
+
+        this._progress.addEventListener("mouseup", () => {
+            const value = this._progress.value;
+            AUDIO_MANAGER.setIsSeeking(this._source, false);
+        });
+    }
+
+    _updatePlayPauseButton() {
+        this._playPauseButton.innerHTML = ""
+        if (AUDIO_MANAGER.isPlaying(this._source)) {
+            this._playPauseButton.appendChild(pauseTextNode());
+        } else {
+            this._playPauseButton.appendChild(playTextNode());
+        }
     }
 }
 
