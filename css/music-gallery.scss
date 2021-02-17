@@ -13,6 +13,12 @@
     grid-gap: 30px;
     padding-bottom: 30px;
 
+    &:hover {
+      a {
+        opacity: 0.75;
+      }
+    }
+
     h3, p, figure, img {
       padding: 0;
       margin: 0;
@@ -49,10 +55,6 @@
         align-items: center;
         background-color: var(--base-color);
         opacity: 0.1;
-
-        &:hover {
-          opacity: 0.75;
-        }
       }
     }
 

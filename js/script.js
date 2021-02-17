@@ -86,6 +86,7 @@ document.addEventListener("audio-player", e => {
 
     const result = Math.round(animationDuration - (animationDuration / 2));
     baubleElement.style.animationDuration = `${result}ms`;
+    console.log(result);
 });
 
 window.addEventListener("DOMContentLoaded", () => {

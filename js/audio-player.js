@@ -7,7 +7,9 @@ class AudioManager {
     /**
      * List of tracks that can be played
      * @type {{
+     *  [string]: any
      *  audio: Audio
+     *  source: MediaElementAudioSourceNode
      *  duration: number
      *  isSeeking: boolean
      *  isPlaying: boolean
@@ -18,12 +20,31 @@ class AudioManager {
      */
     _tracks = {}
 
+    /**
+     *
+     * @type AnalyserNode
+     * @private
+     */
+    _analyser
+
+    /**
+     *
+     * @type AudioContext
+     * @private
+     */
+    _audioContext
+
+    constructor() {
+        this._audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this._setupAnalyser();
+    }
+
     async play(src) {
         if (!this._tracks[src]) {
             return;
         }
 
-        for (const [key, track] of Object.entries(this._tracks)) {
+        for (const [, track] of Object.entries(this._tracks)) {
             if (!track || !(track.audio && track.isPlaying)) {
                 continue;
             }
@@ -111,6 +132,8 @@ class AudioManager {
             }
 
             const player = new Audio(src);
+            context.source = this._audioContext.createMediaElementSource(player);
+            context.source.connect(this._analyser);
             context.audio = player;
             player.volume = 0.9;
             player.addEventListener("durationchange", function() {
@@ -137,28 +160,20 @@ class AudioManager {
         });
     }
 
-    _startFFT() {
-        if (this._audioContext) {
-            return;
-        }
+    _setupAnalyser() {
+        this._analyser = this._audioContext.createAnalyser();
+        this._analyser.minDecibels = -90;
+        this._analyser.maxDecibels = -10;
+        this._analyser.smoothingTimeConstant = 0.85;
 
-        this._audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const source = this._audioContext.createMediaElementSource(this._player)
+        this._analyser.fftSize = 2048;
+        const bufferLength = this._analyser .frequencyBinCount;
 
-        const analyser = this._audioContext.createAnalyser();
-        analyser.minDecibels = -90;
-        analyser.maxDecibels = -10;
-        analyser.smoothingTimeConstant = 0.85;
-
-        analyser.fftSize = 2048;
-        const bufferLength = analyser.frequencyBinCount;
-
-        source.connect(analyser);
-        analyser.connect(this._audioContext.destination);
+        this._analyser.connect(this._audioContext.destination);
 
         const getFFT = () => requestAnimationFrame(async () => {
             const dataArray = new Uint8Array(bufferLength);
-            analyser.getByteTimeDomainData(dataArray);
+            this._analyser.getByteTimeDomainData(dataArray);
 
             const total = dataArray.reduce((acc, curr) => acc + curr);
             const average = total / bufferLength;
