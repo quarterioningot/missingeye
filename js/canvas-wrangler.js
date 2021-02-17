@@ -1,5 +1,199 @@
 import * as THREE from "https://unpkg.com/three/build/three.module.js";
 
+class TexturedParticleContainer {
+
+    /**
+     * @type THREE.Scene
+     * @private
+     */
+    _scene;
+
+
+    /**
+     * @type THREE.PerspectiveCamera
+     * @private
+     */
+    _camera;
+
+    /**
+     * @type THREE.Texture
+     * @private
+     */
+    _texture;
+
+    /**
+     * @type number
+     * @private
+     */
+    _count;
+
+    /**
+     * @type THREE.Points
+     * @private
+     */
+    _particlePoints;
+
+    /**
+     * @type Particle[]
+     * @private
+     */
+    _particles = [];
+
+    /**
+     *
+     * @param scene THREE.Scene
+     * @param camera THREE.PerspectiveCamera
+     * @param texture THREE.Texture
+     * @param count number
+     */
+    constructor(scene, camera, texture, count) {
+        this._scene = scene;
+        this._camera = camera;
+        this._texture = texture;
+        this._count = count;
+
+        this._init();
+    }
+
+    _init() {
+        const particleGeometry = new THREE.BufferGeometry();
+        const particleVertices = [];
+
+        for (let i = 0; i < this._count; i++) {
+            const vector = getSceneToWorld(Math.round(Math.random() * window.innerWidth), window.innerHeight, this._camera)
+            particleVertices.push(vector.x, vector.y, -140);
+
+            this._particles.push(new Particle(this, i, vector))
+        }
+
+        particleGeometry.setAttribute("position", new THREE.Float32BufferAttribute(particleVertices, 3));
+
+        const color = [1.0, 0.2, 0.5];
+        const size = 10;
+
+        const particleMaterial = new THREE.PointsMaterial({
+            size: size,
+            map: this._texture,
+            blending: THREE.AdditiveBlending,
+            depthTest: false,
+            transparent: true
+        });
+        particleMaterial.color.setHSL(color[0], color[1], color[2]);
+
+        this._particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+
+        this._scene.add(this._particlePoints);
+    }
+
+    /**
+     * @param pointIndex number
+     * @returns {THREE.Vector3}
+     */
+    getPointPosition(pointIndex) {
+        const positions = this._particlePoints.geometry.attributes.position.array;
+        const index = pointIndex * 3;
+
+        const x = positions[index];
+        const y = positions[index+1];
+        const z = positions[index+2];
+
+        return new THREE.Vector3(x, y, z);
+    }
+
+    /**
+     * @param pointIndex number
+     * @param points THREE.Vector3
+     */
+    setPointPosition(pointIndex, points) {
+        const positions = this._particlePoints.geometry.attributes.position.array;
+        const index = pointIndex * 3;
+
+        positions[index] = points.x;
+        positions[index+1] = points.y;
+        positions[index+2] = points.z;
+    }
+
+    /**
+     * @returns {Particle[]}
+     */
+    getParticles() {
+        return this._particles;
+    }
+
+    render() {
+        this._particlePoints.geometry.attributes.position.needsUpdate = true;
+        this._particlePoints.geometry.setDrawRange(0, this._count)
+    }
+
+}
+
+class Particle {
+
+    /**
+     * @type TexturedParticleContainer
+     * @private
+     */
+    _containerRef
+
+    /**
+     * @type index number
+     * @private
+     */
+    _index
+
+    /**
+     * @type THREE.Vector3
+     * @private
+     */
+    _vector;
+
+    /**
+     * @type number
+     * @private
+     */
+    _speedX;
+
+    /**
+     * @type number
+     * @private
+     */
+    _speedY;
+
+    /***
+     *
+     * @param containerRef TexturedParticleContainer
+     * @param index number
+     * @param vector THREE.Vector3
+     */
+    constructor(containerRef, index, vector) {
+        this._containerRef = containerRef;
+        this._index = index;
+        this._vector = vector;
+    }
+
+    /**
+     * @param speedX number
+     * @param speedY number
+     */
+    setSpeed(speedX, speedY) {
+        this._speedX = speedX;
+        this._speedY = speedY;
+    }
+
+    /**
+     * @param delta number
+     */
+    process(delta) {
+        const point = this._containerRef.getPointPosition(this._index);
+
+        point.setX(point.x + this._speedX);
+        point.setY(point.y + this._speedY);
+
+        this._containerRef.setPointPosition(this._index, point);
+    }
+
+}
+
 export function LoadCanvasWrangler() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -39,68 +233,26 @@ export function LoadCanvasWrangler() {
 
 
     /* particles - start */
-
-    const particleGeometry = new THREE.BufferGeometry();
-    const particleVertices = [];
-
     const particleSprite = textureLoader.load("assets/textures/sprites/orb.png");
+    const particleCount = 300;
+    const particleContainer = new TexturedParticleContainer(scene, camera, particleSprite, particleCount);
+    const particles = particleContainer.getParticles();
 
-    const particlePoints = 300;
-    for (let i = 0; i < particlePoints; i++) {
-        const x = Math.random() * 2000 - 1000;
-        const y = Math.random() * 2000 - 1000;
-        const z = Math.random() * 2000 - 1000;
-
-        const vector = getSceneToWorld(Math.round(Math.random() * window.innerWidth), window.innerHeight, camera)
-
-        particleVertices.push(vector.x, vector.y, -140);
+    for (const particle of particles) {
+        particle.setSpeed(Math.random() - 0.5, (Math.random() / 2) + 0.3 );
     }
-
-    particleGeometry.setAttribute("position", new THREE.Float32BufferAttribute(particleVertices, 3));
-
-    const color = [1.0, 0.2, 0.5];
-    const size = 10;
-
-    const particleMaterial = new THREE.PointsMaterial({
-        size: size,
-        map: particleSprite,
-        blending: THREE.AdditiveBlending,
-        depthTest: false,
-        transparent: true
-    });
-    particleMaterial.color.setHSL(color[0], color[1], color[2]);
-
-    const particles = new THREE.Points(particleGeometry, particleMaterial);
-
-    //particles.rotation.x = Math.random() * 6;
-    //particles.rotation.y = Math.random() * 6;
-    //particles.rotation.z = Math.random() * 6;
-
-    scene.add(particles);
-
     /* particles - end */
 
 
     function animate() {
         requestAnimationFrame(animate);
 
-        const time = Date.now() * 0.00005;
 
-        const h = (360 * (color[0] + time) % 360) / 360;
-        particleMaterial.color.setHSL(h, color[1], color[2]);
-
-        cube.rotation.x += pushValue;
-        cube.rotation.y += pushValue;
-
-        const particlePositions = particles.geometry.attributes.position.array;
-        for (let coordIndex = 1; coordIndex < particlePositions.length; coordIndex+=3) {
-            let coord = particlePositions[coordIndex];
-            coord += Math.random() / 10;
-            particlePositions[coordIndex] = coord;
+        for (const particle of particles) {
+            particle.process(0);
         }
 
-        particles.geometry.attributes.position.needsUpdate = true;
-        particles.geometry.setDrawRange(0, particlePoints)
+        particleContainer.render();
         renderer.render(scene, camera);
     }
 
