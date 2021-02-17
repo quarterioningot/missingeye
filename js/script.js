@@ -17,7 +17,7 @@ LoadContact();
 LoadBackground();
 LoadCommander();
 LoadAudioPlayer();
-// LoadCanvasWrangler();
+LoadCanvasWrangler();
 
 // const CONFIG = {
 //     apiReadiness: "http://localhost:3000/health/ready",
