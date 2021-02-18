@@ -1,4 +1,5 @@
 import * as THREE from "https://unpkg.com/three/build/three.module.js";
+import { delay } from "./utils.js";
 
 class TexturedParticleContainer {
 
@@ -14,12 +15,6 @@ class TexturedParticleContainer {
      * @private
      */
     _camera;
-
-    /**
-     * @type THREE.Texture
-     * @private
-     */
-    _texture;
 
     /**
      * @type number
@@ -39,18 +34,33 @@ class TexturedParticleContainer {
      */
     _particles = [];
 
+    _materialGroups;
+
     /**
      *
      * @param scene THREE.Scene
      * @param camera THREE.PerspectiveCamera
      * @param texture THREE.Texture
      * @param count number
+     * @param materialGroups {{
+     *     size: number,
+     *     color: {
+     *         r: number,
+     *         g: number,
+     *         b: number
+     *     }
+     *     texture: THREE.Texture,
+     *     range: {
+     *         start: number,
+     *         stride: number
+     *     }
+     * }}[]
      */
-    constructor(scene, camera, texture, count) {
+    constructor(scene, camera, count, materialGroups) {
         this._scene = scene;
         this._camera = camera;
-        this._texture = texture;
         this._count = count;
+        this._materialGroups = materialGroups;
 
         this._init();
     }
@@ -60,27 +70,35 @@ class TexturedParticleContainer {
         const particleVertices = [];
 
         for (let i = 0; i < this._count; i++) {
-            const vector = getSceneToWorld(Math.round(Math.random() * window.innerWidth), window.innerHeight, this._camera)
-            particleVertices.push(vector.x, vector.y, -140);
+            const vector = getSceneToWorld(Math.round(Math.random() * window.innerWidth), window.innerHeight + 200, this._camera)
+            vector.setZ(-140);
+            particleVertices.push(vector.x, vector.y, vector.z);
 
             this._particles.push(new Particle(this, i, vector))
         }
 
         particleGeometry.setAttribute("position", new THREE.Float32BufferAttribute(particleVertices, 3));
 
-        const color = [1.0, 0.2, 0.5];
-        const size = 10;
+        const materials = [];
+        let materialGroupIndex = 0
+        for (const materialGroup of this._materialGroups) {
+            const particleMaterial = new THREE.PointsMaterial({
+                size: materialGroup.size,
+                map: materialGroup.texture,
+                blending: THREE.AdditiveBlending,
+                depthTest: false,
+                transparent: true
+            });
+            particleMaterial.color.setHSL(materialGroup.color.r, materialGroup.color.g, materialGroup.color.b);
+            materials.push(particleMaterial);
 
-        const particleMaterial = new THREE.PointsMaterial({
-            size: size,
-            map: this._texture,
-            blending: THREE.AdditiveBlending,
-            depthTest: false,
-            transparent: true
-        });
-        particleMaterial.color.setHSL(color[0], color[1], color[2]);
+            particleGeometry.addGroup(materialGroup.range.start, materialGroup.range.stride, materialGroupIndex);
+            materialGroupIndex++;
+        }
 
-        this._particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+        this._particlePoints = new THREE.Points(particleGeometry, materials);
+
+        particleGeometry.computeVertexNormals();
 
         this._scene.add(this._particlePoints);
     }
@@ -145,7 +163,7 @@ class Particle {
      * @type THREE.Vector3
      * @private
      */
-    _vector;
+    _origin;
 
     /**
      * @type number
@@ -165,10 +183,10 @@ class Particle {
      * @param index number
      * @param vector THREE.Vector3
      */
-    constructor(containerRef, index, vector) {
+    constructor(containerRef, index, origin) {
         this._containerRef = containerRef;
         this._index = index;
-        this._vector = vector;
+        this._origin =  new THREE.Vector3(origin.x, origin.y, origin.z);
     }
 
     /**
@@ -188,6 +206,11 @@ class Particle {
 
         point.setX(point.x + this._speedX);
         point.setY(point.y + this._speedY);
+
+        if (point.y > 160) {
+            this._containerRef.setPointPosition(this._index, this._origin);
+            return;
+        }
 
         this._containerRef.setPointPosition(this._index, point);
     }
@@ -233,23 +256,65 @@ export function LoadCanvasWrangler() {
 
 
     /* particles - start */
-    const particleSprite = textureLoader.load("assets/textures/sprites/orb.png");
-    const particleCount = 300;
-    const particleContainer = new TexturedParticleContainer(scene, camera, particleSprite, particleCount);
+    const particleCount = 30;
+    const particleSprites = [
+        textureLoader.load("assets/textures/sprites/orb2.png"),
+        textureLoader.load("assets/textures/sprites/orb3.png"),
+        textureLoader.load("assets/textures/sprites/orb4.png")
+    ];
+    let particleMaterialGroups = [];
+    for(let i  = 0; i < particleCount; i++) {
+        particleMaterialGroups[i] = {
+            size: Math.round(Math.random() * 20) + 200,
+            texture: particleSprites[Math.floor(Math.random() * particleSprites.length)],
+            color: {
+                r: Math.random(),
+                g: Math.random(),
+                b: Math.random()
+            },
+            range: {
+                start: i,
+                stride: 1
+            }
+        }
+    }
+
+    const particleContainer = new TexturedParticleContainer(scene, camera, particleCount, particleMaterialGroups);
     const particles = particleContainer.getParticles();
 
     for (const particle of particles) {
-        particle.setSpeed(Math.random() - 0.5, (Math.random() / 2) + 0.3 );
+        particle.setSpeed(randomNumber(-0.25, 0.25), randomNumber(0.1, 0.3));
     }
     /* particles - end */
 
+    const releasedParticleIndices = [];
 
-    function animate() {
+    async function particleReleaser() {
+        await delay(Math.round(Math.random() * 250) + 250);
+
+        const randomIndex = Math.round(Math.random() * (particles.length - 1));
+
+        if (!releasedParticleIndices.includes(randomIndex)) {
+            releasedParticleIndices.push(randomIndex);
+        }
+
+        if (releasedParticleIndices.length >= particles.length) {
+            return;
+        }
+
+        requestAnimationFrame(particleReleaser);
+    }
+
+    async function animate() {
         requestAnimationFrame(animate);
 
-
-        for (const particle of particles) {
-            particle.process(0);
+        for (const releasedParticleIndex of releasedParticleIndices) {
+            const particle = particles[releasedParticleIndex];
+            try {
+                particle.process(0);
+            } catch (err) {
+                console.log(err);
+            }
         }
 
         particleContainer.render();
@@ -257,6 +322,11 @@ export function LoadCanvasWrangler() {
     }
 
     animate();
+    particleReleaser();
+}
+
+function randomNumber(min, max) {
+    return Math.random() * (max - min) + min;
 }
 
 /**
