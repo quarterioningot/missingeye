@@ -265,7 +265,7 @@ export function LoadCanvasWrangler() {
     let particleMaterialGroups = [];
     for(let i  = 0; i < particleCount; i++) {
         particleMaterialGroups[i] = {
-            size: Math.round(Math.random() * 20) + 200,
+            size: Math.round(Math.random() * 20) + 40,
             texture: particleSprites[Math.floor(Math.random() * particleSprites.length)],
             color: {
                 r: Math.random(),
