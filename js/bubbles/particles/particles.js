@@ -234,4 +234,8 @@ export class Particle {
         this._materialRef.opacity = opacity;
     }
 
+    resetPosition() {
+        this.setPosition(this._origin);
+    }
+
 }

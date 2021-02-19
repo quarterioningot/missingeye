@@ -69,25 +69,25 @@ document.addEventListener(ROLL_RESULT_EVENT, e => {
 
 let baubleElementDurations = [];
 
-document.addEventListener("audio-player", e => {
-    const pushValue = e.detail;
-    const baubleElements = document.querySelectorAll(".circle-container");
-
-    if (pushValue < 3) {
-        return;
-    }
-
-    const index = Math.round(Math.random() * baubleElements.length);
-    const baubleElement = baubleElements[index];
-    const animationDuration = baubleElementDurations[index];
-    if (Number.isNaN(animationDuration)) {
-        return;
-    }
-
-    const result = Math.round(animationDuration - (animationDuration / 2));
-    baubleElement.style.animationDuration = `${result}ms`;
-    console.log(result);
-});
+// document.addEventListener("audio-player", e => {
+//     const pushValue = e.detail;
+//     const baubleElements = document.querySelectorAll(".circle-container");
+//
+//     if (pushValue < 3) {
+//         return;
+//     }
+//
+//     const index = Math.round(Math.random() * baubleElements.length);
+//     const baubleElement = baubleElements[index];
+//     const animationDuration = baubleElementDurations[index];
+//     if (Number.isNaN(animationDuration)) {
+//         return;
+//     }
+//
+//     const result = Math.round(animationDuration - (animationDuration / 2));
+//     baubleElement.style.animationDuration = `${result}ms`;
+//     console.log(result);
+// });
 
 window.addEventListener("DOMContentLoaded", () => {
     const baubleElements = document.querySelectorAll(".circle-container");

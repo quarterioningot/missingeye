@@ -25,6 +25,12 @@ class BackgroundParticles {
     _particleContainer;
 
     /**
+     * @type number
+     * @private
+     */
+    _acceleration = 0;
+
+    /**
      *
      * @param scene THREE.Scene
      * @param camera THREE.PerspectiveCamera
@@ -38,6 +44,10 @@ class BackgroundParticles {
         this._particleCount = particleCount;
 
         this._setup();
+
+        document.addEventListener("audio-player", e => {
+            this._acceleration = e.detail < 3 ? 0 : this._acceleration + 0.0008;
+        });
     }
 
     _setup() {
@@ -95,13 +105,13 @@ class BackgroundParticles {
         for (const particleConfig of this._particleConfigs) {
             if (particleConfig.startDelay > 0) {
                 particleConfig.startDelay -= delta;
-                return;
+                continue;
             }
 
             const point = particleConfig.particle.getPosition();
 
             point.setX(point.x + particleConfig.speedX);
-            point.setY(point.y + particleConfig.speedY);
+            point.setY(point.y + particleConfig.speedY + this._acceleration);
 
             let opacity = particleConfig.particle.getOpacity();
             if (opacity < 1) {
@@ -111,11 +121,18 @@ class BackgroundParticles {
 
             if (point.y > particleConfig.positionLimitY) {
                 particleConfig.particle.setOpacity(0);
-                particleConfig.particle.setPosition(this._origin);
-                return;
+                particleConfig.particle.resetPosition();
+                continue;
             }
 
             particleConfig.particle.setPosition(point);
+        }
+
+        if (this._acceleration > 0) {
+            this._acceleration -= 0.0001;
+            if (this._acceleration < 0) {
+                this._acceleration = 0;
+            }
         }
 
         this._particleContainer.render(delta);
@@ -158,7 +175,6 @@ export function LoadCanvasWrangler() {
 
     document.addEventListener("audio-player", e => {
         pushValue = e.detail < 3 ? 0.01 : e.detail / 100;
-        console.log("FFT:", pushValue);
     });
     /* cube - end */
 
