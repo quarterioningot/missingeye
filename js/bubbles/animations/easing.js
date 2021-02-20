@@ -18,7 +18,7 @@ export function ease(type, time, begin, change, duration) {
  * The above equations are based upon different works and sources, please
  * read the below licenses and attributions for more information. Changes
  * in code include, expansion of variable names, code reformatting amongst
- * other small changes that adapt it toi specific requirements.
+ * other small changes that adapt it to specific requirements.
  *
  * ============================================================
  *
