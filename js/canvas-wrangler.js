@@ -1,5 +1,6 @@
 import * as THREE from "https://unpkg.com/three/build/three.module.js";
 import { TexturedParticleContainer, Particle } from "./bubbles/particles/particles.js"
+import { translateVector, process } from "./bubbles/animations/translate.js"
 
 class BackgroundParticles {
 
@@ -162,10 +163,28 @@ export function LoadCanvasWrangler() {
     const textureLoader = new THREE.TextureLoader();
 
     /* cube - start */
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    const cube = new THREE.Mesh(geometry, material);
-    // scene.add(cube);
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const cubeMaterial = new THREE.MeshFaceMaterial([
+        new THREE.MeshBasicMaterial({color: 0x00ff00}),
+        new THREE.MeshBasicMaterial({color: 0x00ff00}),
+        new THREE.MeshBasicMaterial({color: 0x00ff00}),
+        new THREE.MeshBasicMaterial({color: 0x00ff00}),
+        new THREE.MeshBasicMaterial({color: 0x00ff00}),
+        new THREE.MeshBasicMaterial({color: 0x00ff00})
+    ]);
+    const cube = new THREE.Mesh(geometry, cubeMaterial);
+    cube.scale.x = 0.2;
+    cube.scale.y = 0.2;
+    cube.scale.z = 0.2;
+    cube.position.set(0.5, 0.5, 0);
+    scene.add(cube);
+
+    translateVector({
+        fromVector: new THREE.Vector3(cube.position.x, cube.position.y, cube.position.z),
+        toVector: new THREE.Vector3(1, cube.position.y, cube.position.z),
+        duration: 200,
+        outVector: cube.position
+    })
 
     window.addEventListener("resize", () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -187,6 +206,8 @@ export function LoadCanvasWrangler() {
     async function animate() {
         const timeStart = Date.now();
         requestAnimationFrame(animate);
+
+        process(timeStart, delta);
 
         backgroundParticles.process(delta);
         renderer.render(scene, camera);
