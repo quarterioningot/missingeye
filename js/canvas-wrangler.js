@@ -1,6 +1,6 @@
 import * as THREE from "https://unpkg.com/three/build/three.module.js";
 import { TexturedParticleContainer, Particle } from "./bubbles/particles/particles.js"
-import { translateVector, process } from "./bubbles/animations/translate.js"
+import { translateVector, process, TRANSLATE_VECTOR_CONTEXT_STATE_STOPPED } from "./bubbles/animations/translate.js"
 
 class BackgroundParticles {
 
@@ -9,10 +9,9 @@ class BackgroundParticles {
      * @type {{
      *     particle: Particle,
      *     startDelay: number,
-     *     speedY: number,
-     *     speedX: number,
-     *     speedOpacity: number,
-     *     positionLimitY: number
+     *     translatePosition: TranslateVectorContext
+     *     translateOpacity: TranslateVectorContext
+     *     isStarted: boolean
      * }[]}
      * @private
      */
@@ -47,7 +46,7 @@ class BackgroundParticles {
         this._setup();
 
         document.addEventListener("audio-player", e => {
-            this._acceleration = e.detail < 3 ? 0 : this._acceleration + 0.0008;
+            this._acceleration = e.detail < 3 ? 0 : this._acceleration + 10;
         });
     }
 
@@ -86,13 +85,28 @@ class BackgroundParticles {
         for (let i  = 0; i < particles.length; i++) {
             const particle = particles[i];
             particle.setOrigin(Math.random(), 0);
+
+            const translatePosition = translateVector({
+                fromVector: new THREE.Vector3(Math.random(), 0, 0),
+                toVector: new THREE.Vector3(Math.random(), 1.2, 0),
+                duration: Math.floor(Math.random() * 9000) + 5000
+            });
+            translatePosition.stop();
+
+            const translateOpacity = translateVector({
+                fromVector: new THREE.Vector3(0, 0, 0),
+                toVector: new THREE.Vector3(1, 0, 0),
+                duration: Math.floor(Math.random() * 250) + 250
+            });
+            translateOpacity.stop();
+
             this._particleConfigs.push({
                 particle,
                 startDelay: lastDelay + Math.floor(Math.random() * 25),
-                speedY: randomNumber(0.0006, 0.0009),
-                speedX: randomNumber(-0.00050, 0.00050),
-                speedOpacity: 0.05,
-                positionLimitY: 1.2
+                translatePosition: translatePosition,
+                translateOpacity: translateOpacity,
+                isStarted: false
+
             });
             lastDelay += Math.floor(Math.random() * 50);
         }
@@ -109,28 +123,30 @@ class BackgroundParticles {
                 continue;
             }
 
-            const point = particleConfig.particle.getPosition();
-
-            point.setX(point.x + particleConfig.speedX);
-            point.setY(point.y + particleConfig.speedY + this._acceleration);
-
-            let opacity = particleConfig.particle.getOpacity();
-            if (opacity < 1) {
-                opacity += particleConfig.speedOpacity;
-                particleConfig.particle.setOpacity(opacity);
+            if (!particleConfig.isStarted) {
+                particleConfig.translatePosition.start();
+                particleConfig.translateOpacity.start();
+                particleConfig.isStarted = true;
             }
 
-            if (point.y > particleConfig.positionLimitY) {
-                particleConfig.particle.setOpacity(0);
-                particleConfig.particle.resetPosition();
-                continue;
+            if (particleConfig.translatePosition.getState() === TRANSLATE_VECTOR_CONTEXT_STATE_STOPPED) {
+                particleConfig.translatePosition.reset();
+                particleConfig.translateOpacity.reset();
+                particleConfig.translatePosition.start();
+                particleConfig.translateOpacity.start();
             }
 
-            particleConfig.particle.setPosition(point);
+            // particleConfig.translatePosition.setBoost(this._acceleration);
+
+            const position = particleConfig.translatePosition.getResult()
+            const opacity = particleConfig.translateOpacity.getResult()
+
+            particleConfig.particle.setPosition(position);
+            particleConfig.particle.setOpacity(opacity.x);
         }
 
         if (this._acceleration > 0) {
-            this._acceleration -= 0.0001;
+            this._acceleration -= 1;
             if (this._acceleration < 0) {
                 this._acceleration = 0;
             }
@@ -177,14 +193,15 @@ export function LoadCanvasWrangler() {
     cube.scale.y = 0.2;
     cube.scale.z = 0.2;
     cube.position.set(0.5, 0.5, 0);
-    scene.add(cube);
+    // scene.add(cube);
 
+    const cubeVector = new THREE.Vector3(0.5, 0.5, 0);
     translateVector({
         fromVector: new THREE.Vector3(cube.position.x, cube.position.y, cube.position.z),
-        toVector: new THREE.Vector3(1, cube.position.y, cube.position.z),
-        duration: 200,
-        outVector: cube.position
-    })
+        toVector: new THREE.Vector3(0, cube.position.y, cube.position.z),
+        duration: 2000,
+        outVector: cubeVector
+    });
 
     window.addEventListener("resize", () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -199,7 +216,7 @@ export function LoadCanvasWrangler() {
 
 
     /* particles - start */
-    const backgroundParticles = new BackgroundParticles(scene, camera, textureLoader, 300);
+    const backgroundParticles = new BackgroundParticles(scene, camera, textureLoader, 200);
     /* particles - end */
 
     let delta = 0;
@@ -211,6 +228,8 @@ export function LoadCanvasWrangler() {
 
         backgroundParticles.process(delta);
         renderer.render(scene, camera);
+
+        cube.position.set(cubeVector.x, cubeVector.y, cubeVector.z);
 
         delta = Date.now() - timeStart;
     }

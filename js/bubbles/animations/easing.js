@@ -1,13 +1,13 @@
-export const EASE_INOUT_QUAD = ""
+export const EASE_INOUT_QUAD = "EASE_INOUT_QUAD";
 
-const easingFunctions = {}
+const easingFunctions = {};
 
 easingFunctions[EASE_INOUT_QUAD] = (time, begin, change, duration) => {
-    if ((time /= duration / 2) < 1) {
+    if ((time = time / (duration / 2)) < 1) {
         return change / 2 * time * time + begin;
     }
 
-    return -change / 2 * ((--time) * (time - 2) - 1) + begin;
+    return -change / 2 * ((time -= 1) * (time - 2) - 1) + begin;
 }
 
 export function ease(type, time, begin, change, duration) {
