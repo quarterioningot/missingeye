@@ -41,6 +41,26 @@ export function LoadCanvasWrangler() {
     });
     /* particles - end */
 
+    document.addEventListener("console-commander", e => {
+        const commandArgs = e.detail;
+        const verb = commandArgs.getVerb();
+        if (verb !== "bokeh") {
+            return;
+        }
+
+        const args = commandArgs.getArgs();
+        if (args[0] !== "shoot") {
+            return;
+        }
+
+        let count = 0;
+        if (!args[1] || !(count = parseInt(args[1])) || count <= 0) {
+            return;
+        }
+
+        shootingBokehParticles.releaseBokeh(count);
+    });
+
     let delta = 0;
 
     async function animate() {
