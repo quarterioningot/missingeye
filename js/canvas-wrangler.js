@@ -1,288 +1,158 @@
 import * as THREE from "https://unpkg.com/three/build/three.module.js";
-import { delay } from "./utils.js";
+import { TexturedParticleContainer, Particle } from "./bubbles/particles/particles.js"
+import { translateVector, process, TRANSLATE_VECTOR_CONTEXT_STATE_STOPPED } from "./bubbles/animations/translate.js"
 
-class TexturedParticleContainer {
-
-    /**
-     * @type THREE.Scene
-     * @private
-     */
-    _scene;
+class BackgroundParticles {
 
     /**
-     * @type THREE.PerspectiveCamera
+     *
+     * @type {{
+     *     particle: Particle,
+     *     startDelay: number,
+     *     translatePosition: TranslateVectorContext
+     *     translateOpacity: TranslateVectorContext
+     *     isStarted: boolean
+     * }[]}
      * @private
      */
-    _camera;
+    _particleConfigs = [];
+
+    /**
+     *
+     * @type TexturedParticleContainer
+     * @private
+     */
+    _particleContainer;
 
     /**
      * @type number
      * @private
      */
-    _count;
-
-    /**
-     * @type THREE.Points
-     * @private
-     */
-    _particlePoints;
-
-    /**
-     * @type Particle[]
-     * @private
-     */
-    _particles = [];
-
-    _materialGroups;
+    _acceleration = 0;
 
     /**
      *
      * @param scene THREE.Scene
      * @param camera THREE.PerspectiveCamera
-     * @param texture THREE.Texture
-     * @param count number
-     * @param materialGroups {{
-     *     size: number,
-     *     color: {
-     *         h: number,
-     *         s: number,
-     *         l: number
-     *     }
-     *     texture: THREE.Texture,
-     *     range: {
-     *         start: number,
-     *         stride: number
-     *     }
-     * }}[]
+     * @param textureLoader THREE.TextureLoader
+     * @param particleCount number
      */
-    constructor(scene, camera, count, materialGroups) {
+    constructor(scene, camera, textureLoader, particleCount) {
         this._scene = scene;
         this._camera = camera;
-        this._count = count;
-        this._materialGroups = materialGroups;
+        this._textureLoader = textureLoader;
+        this._particleCount = particleCount;
 
-        this._init();
+        this._setup();
+
+        document.addEventListener("audio-player", e => {
+            this._acceleration = e.detail < 3 ? 0 : (e.detail / 100) + Math.floor(e.detail / 3);
+        });
     }
 
-    _init() {
-        const particleGeometry = new THREE.BufferGeometry();
-        const particleVertices = [];
-
-        for (let i = 0; i < this._count; i++) {
-            const vector = new THREE.Vector3(0, 0, 0);
-            particleVertices.push(vector.x, vector.y, vector.z);
-            this._particles.push(new Particle(this, i, vector))
-        }
-
-        particleGeometry.setAttribute("position", new THREE.Float32BufferAttribute(particleVertices, 3));
-
-        const materials = [];
-        let materialGroupIndex = 0
-        for (const materialGroup of this._materialGroups) {
-            const particleMaterial = new THREE.PointsMaterial({
-                size: materialGroup.size,
-                map: materialGroup.texture,
-                blending: THREE.AdditiveBlending,
-                depthTest: false,
-                transparent: true
-            });
-            particleMaterial.color.setHSL(materialGroup.color.h, materialGroup.color.s, materialGroup.color.l);
-            particleMaterial.opacity = 0;
-            materials.push(particleMaterial);
-
-            particleGeometry.addGroup(materialGroup.range.start, materialGroup.range.stride, materialGroupIndex);
-
-            for (let i = materialGroup.range.start; i < materialGroup.range.start + materialGroup.range.stride; i++) {
-                this._particles[i].setMaterialRef(particleMaterial);
+    _setup() {
+        const particleSprites = [
+            this._textureLoader.load("assets/textures/sprites/orb2.png"),
+            this._textureLoader.load("assets/textures/sprites/orb3.png"),
+            this._textureLoader.load("assets/textures/sprites/orb4.png")
+        ];
+        let particleMaterialGroups = [];
+        for (let i  = 0; i < this._particleCount; i++) {
+            particleMaterialGroups[i] = {
+                size: 100,
+                texture: particleSprites[Math.floor(Math.random() * particleSprites.length)],
+                color: {
+                    h: Math.random(),
+                    s: 0.5,
+                    l: 0.5
+                },
+                range: {
+                    start: i,
+                    stride: 1
+                }
             }
-
-            materialGroupIndex++;
         }
 
-        this._particlePoints = new THREE.Points(particleGeometry, materials);
+        this._particleContainer = new TexturedParticleContainer(
+            this._scene,
+            this._camera,
+            this._particleCount,
+            particleMaterialGroups
+        );
 
-        particleGeometry.computeVertexNormals();
+        const particles = this._particleContainer.getParticles();
+        let lastDelay = 0;
+        for (let i  = 0; i < particles.length; i++) {
+            const particle = particles[i];
+            particle.setOrigin(Math.random(), 0);
 
-        this._scene.add(this._particlePoints);
+            const translatePosition = translateVector({
+                fromVector: new THREE.Vector3(Math.random(), 0, 0),
+                toVector: new THREE.Vector3(Math.random(), 1.2, 0),
+                duration: Math.floor(Math.random() * 9000) + 5000
+            });
+            translatePosition.stop();
+
+            const translateOpacity = translateVector({
+                fromVector: new THREE.Vector3(0, 0, 0),
+                toVector: new THREE.Vector3(1, 0, 0),
+                duration: Math.floor(Math.random() * 250) + 250
+            });
+            translateOpacity.stop();
+
+            this._particleConfigs.push({
+                particle,
+                startDelay: lastDelay + Math.floor(Math.random() * 25),
+                translatePosition: translatePosition,
+                translateOpacity: translateOpacity,
+                isStarted: false
+
+            });
+            lastDelay += Math.floor(Math.random() * 50);
+        }
     }
 
     /**
-     * @param pointIndex number
-     * @returns {THREE.Vector3}
-     */
-    getPointPosition(pointIndex) {
-        const positions = this._particlePoints.geometry.attributes.position.array;
-        const index = pointIndex * 3;
-
-        const x = positions[index];
-        const y = positions[index+1];
-        const z = positions[index+2];
-
-        return new THREE.Vector3(x, y, z);
-    }
-
-    /**
-     * @param pointIndex number
-     * @param points THREE.Vector3
-     */
-    setPointPosition(pointIndex, points) {
-        const positions = this._particlePoints.geometry.attributes.position.array;
-        const index = pointIndex * 3;
-
-        positions[index] = points.x;
-        positions[index+1] = points.y;
-        positions[index+2] = points.z;
-    }
-
-    /**
-     * @returns {Particle[]}
-     */
-    getParticles() {
-        return this._particles;
-    }
-
-    render() {
-        this._particlePoints.geometry.attributes.position.needsUpdate = true;
-        this._particlePoints.geometry.setDrawRange(0, this._count)
-    }
-
-}
-
-class Particle {
-
-    /**
-     * @type THREE.TexturedParticleContainer
-     * @private
-     */
-    _containerRef
-
-    /**
-     * @type THREE.PointsMaterial
-     * @private
-     */
-    _materialRef
-
-    /**
-     * @type index number
-     * @private
-     */
-    _index
-
-    /**
-     * @type THREE.Vector3
-     * @private
-     */
-    _origin;
-
-    /**
-     * @type number
-     * @private
-     */
-    _speedX;
-
-    /**
-     * @type number
-     * @private
-     */
-    _speedY;
-
-    /**
-     * @type number
-     * @private
-     */
-    _opacity;
-
-    /**
-     * @type number
-     * @private
-     */
-    _limitY;
-
-    /**
-     * @type _startDelay
-     * @private
-     */
-    _startDelay
-
-    /***
      *
-     * @param containerRef THREE.TexturedParticleContainer
-     * @param index number
-     * @param vector THREE.Vector3
-     */
-    constructor(containerRef, index, origin) {
-        this._containerRef = containerRef;
-        this._index = index;
-        this._origin = new THREE.Vector3(origin.x, origin.y, origin.z);
-    }
-
-    /**
-     * @param x, y number
-     * @param speedY number
-     */
-    setOrigin(x, y) {
-        this._origin.setX(x);
-        this._origin.setY(y)
-        this._containerRef.setPointPosition(this._index, this._origin);
-    }
-
-    /**
-     * @param speedX number
-     * @param speedY number
-     */
-    setSpeed(speedX, speedY, opacity) {
-        this._speedX = speedX;
-        this._speedY = speedY;
-        this._opacity = opacity;
-    }
-
-    /**
-     * @param limitY number
-     */
-    setYLimit(limitY) {
-        this._limitY = limitY;
-    }
-
-    /**
-     * @param delay number
-     */
-    setStartDelay(startDelay) {
-        this._startDelay = startDelay;
-    }
-
-    /**
-     * @type THREE.PointsMaterial
-     * @param materialRef
-     */
-    setMaterialRef(materialRef) {
-        this._materialRef = materialRef;
-    }
-
-    /**
      * @param delta number
      */
     process(delta) {
-        if (this._startDelay > 0) {
-            this._startDelay -= delta;
-            return;
+        for (const particleConfig of this._particleConfigs) {
+            if (particleConfig.startDelay > 0) {
+                particleConfig.startDelay -= delta;
+                continue;
+            }
+
+            if (!particleConfig.isStarted) {
+                particleConfig.translatePosition.start();
+                particleConfig.translateOpacity.start();
+                particleConfig.isStarted = true;
+            }
+
+            if (particleConfig.translatePosition.getState() === TRANSLATE_VECTOR_CONTEXT_STATE_STOPPED) {
+                particleConfig.translatePosition.reset();
+                particleConfig.translateOpacity.reset();
+                particleConfig.translatePosition.start();
+                particleConfig.translateOpacity.start();
+            }
+
+            particleConfig.translatePosition.setBoost(this._acceleration);
+
+            const position = particleConfig.translatePosition.getResult()
+            const opacity = particleConfig.translateOpacity.getResult()
+
+            particleConfig.particle.setPosition(position);
+            particleConfig.particle.setOpacity(opacity.x);
         }
 
-        const point = this._containerRef.getPointPosition(this._index);
-
-        point.setX(point.x + this._speedX);
-        point.setY(point.y + this._speedY);
-
-        if (this._materialRef.opacity < 1) {
-            this._materialRef.opacity += this._opacity;
+        if (this._acceleration > 0) {
+            this._acceleration -= 1;
+            if (this._acceleration < 0) {
+                this._acceleration = 0;
+            }
         }
 
-        if (point.y > this._limitY) {
-            this._materialRef.opacity = 0;
-            this._containerRef.setPointPosition(this._index, this._origin);
-            return;
-        }
-
-        this._containerRef.setPointPosition(this._index, point);
+        this._particleContainer.render(delta);
     }
 
 }
@@ -309,10 +179,29 @@ export function LoadCanvasWrangler() {
     const textureLoader = new THREE.TextureLoader();
 
     /* cube - start */
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    const cube = new THREE.Mesh(geometry, material);
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const cubeMaterial = new THREE.MeshFaceMaterial([
+        new THREE.MeshBasicMaterial({color: 0x00ff00}),
+        new THREE.MeshBasicMaterial({color: 0x00ff00}),
+        new THREE.MeshBasicMaterial({color: 0x00ff00}),
+        new THREE.MeshBasicMaterial({color: 0x00ff00}),
+        new THREE.MeshBasicMaterial({color: 0x00ff00}),
+        new THREE.MeshBasicMaterial({color: 0x00ff00})
+    ]);
+    const cube = new THREE.Mesh(geometry, cubeMaterial);
+    cube.scale.x = 0.2;
+    cube.scale.y = 0.2;
+    cube.scale.z = 0.2;
+    cube.position.set(0.5, 0.5, 0);
     // scene.add(cube);
+
+    const cubeVector = new THREE.Vector3(0.5, 0.5, 0);
+    translateVector({
+        fromVector: new THREE.Vector3(cube.position.x, cube.position.y, cube.position.z),
+        toVector: new THREE.Vector3(0, cube.position.y, cube.position.z),
+        duration: 2000,
+        outVector: cubeVector
+    });
 
     window.addEventListener("resize", () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -322,68 +211,26 @@ export function LoadCanvasWrangler() {
 
     document.addEventListener("audio-player", e => {
         pushValue = e.detail < 3 ? 0.01 : e.detail / 100;
-        console.log("FFT:", pushValue);
     });
     /* cube - end */
 
 
     /* particles - start */
-    const particleCount = 100;
-    const particleSprites = [
-        textureLoader.load("assets/textures/sprites/orb2.png"),
-        textureLoader.load("assets/textures/sprites/orb3.png"),
-        textureLoader.load("assets/textures/sprites/orb4.png")
-    ];
-    let particleMaterialGroups = [];
-    for(let i  = 0; i < particleCount; i++) {
-        particleMaterialGroups[i] = {
-            size: 100,
-            texture: particleSprites[Math.floor(Math.random() * particleSprites.length)],
-            color: {
-                h: Math.random(),
-                s: 0.5,
-                l: 0.5
-            },
-            range: {
-                start: i,
-                stride: 1
-            }
-        }
-    }
-
-    const particleContainer = new TexturedParticleContainer(
-        scene,
-        camera,
-        particleCount,
-        particleMaterialGroups
-    );
-    const particles = particleContainer.getParticles();
-
-    let lastDelay = 0;
-    for (const particle of particles) {
-        particle.setSpeed(randomNumber(-0.00050, 0.00050), randomNumber(0.0006, 0.0009), 0.05);
-        particle.setYLimit(1.2);
-        particle.setOrigin(Math.random(), 0);
-        lastDelay += Math.floor(Math.random() * 50);
-        particle.setStartDelay(lastDelay + Math.floor(Math.random() * 25));
-    }
+    const backgroundParticles = new BackgroundParticles(scene, camera, textureLoader, 300);
     /* particles - end */
 
     let delta = 0;
     async function animate() {
+        const timeStart = Date.now();
         requestAnimationFrame(animate);
 
-        const timeStart = Date.now();
-        for (const particle of particles) {
-            try {
-                particle.process(delta);
-            } catch (err) {
-                console.log(err);
-            }
-        }
+        process(timeStart, delta);
 
-        particleContainer.render();
+        backgroundParticles.process(delta);
         renderer.render(scene, camera);
+
+        cube.position.set(cubeVector.x, cubeVector.y, cubeVector.z);
+
         delta = Date.now() - timeStart;
     }
 
