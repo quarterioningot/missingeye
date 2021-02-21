@@ -39,7 +39,7 @@ class TranslateVectorContext {
      * @type {number}
      * @private
      */
-    _boost = 0;
+    _boost = 1;
 
     /**
      * @param {TranslateVectorOptions} options
@@ -61,7 +61,7 @@ class TranslateVectorContext {
     }
 
     reset() {
-        this._boost = 0;
+        this.setBoost(1);
         this._options.outVector.setX(this._options.fromVector.x);
         this._options.outVector.setY(this._options.fromVector.y);
         this._options.outVector.setZ(this._options.fromVector.z);
@@ -112,6 +112,10 @@ class TranslateVectorContext {
      * @param {number} boost
      */
     setBoost(boost) {
+        if (boost <= 0) {
+            return;
+        }
+
         this._boost = boost;
     }
 
@@ -130,10 +134,10 @@ class TranslateVectorContext {
             this._duration,
             from,
             changeInPoint,
-            this._options.duration - this._boost
+            this._options.duration
         );
 
-        this._duration += 1;
+        this._duration += this._boost;
 
         return result;
     }

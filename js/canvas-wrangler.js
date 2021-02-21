@@ -46,7 +46,7 @@ class BackgroundParticles {
         this._setup();
 
         document.addEventListener("audio-player", e => {
-            this._acceleration = e.detail < 3 ? 0 : this._acceleration + 10;
+            this._acceleration = e.detail < 3 ? 0 : (e.detail / 100) + Math.floor(e.detail / 3);
         });
     }
 
@@ -136,7 +136,7 @@ class BackgroundParticles {
                 particleConfig.translateOpacity.start();
             }
 
-            // particleConfig.translatePosition.setBoost(this._acceleration);
+            particleConfig.translatePosition.setBoost(this._acceleration);
 
             const position = particleConfig.translatePosition.getResult()
             const opacity = particleConfig.translateOpacity.getResult()
@@ -216,7 +216,7 @@ export function LoadCanvasWrangler() {
 
 
     /* particles - start */
-    const backgroundParticles = new BackgroundParticles(scene, camera, textureLoader, 200);
+    const backgroundParticles = new BackgroundParticles(scene, camera, textureLoader, 300);
     /* particles - end */
 
     let delta = 0;
