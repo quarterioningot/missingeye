@@ -119,5 +119,39 @@
 
     }
 
+    .collapsible-wrapper {
+      margin-top: 10px;
+      text-align: right;
+
+      .collapsible-content {
+        max-height: 0;
+        text-align: left;
+        overflow: hidden;
+        transition: max-height .25s ease-in-out;
+      }
+
+      input[type="checkbox"] {
+        display: none;
+
+        &:checked + label::before {
+          content: 'less info';
+        }
+
+        &:checked + label + .collapsible-content {
+          max-height: 100vh;
+        }
+      }
+
+      label {
+        display: block;
+        cursor: pointer;
+        transition: all 0.25s ease-out;
+
+        &::before {
+          content: 'more info';
+          display: inline-block;
+        }
+      }
+    }
   }
 }
