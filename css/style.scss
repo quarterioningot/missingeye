@@ -204,20 +204,6 @@ body {
   width: auto;
   margin: 0 auto;
   overflow: auto;
-
-  p {
-    &:first-child {
-      padding-top: 120px;
-    }
-
-    &:not(:first-child) {
-      padding: 5px 30px;
-    }
-
-    &:last-child {
-      padding-bottom: 20px;
-    }
-  }
 }
 
 h1 {
@@ -284,6 +270,18 @@ ul {
 }
 
 p {
+  &:first-child {
+    padding-top: 120px;
+  }
+
+  &:not(:first-child) {
+    padding: 5px 30px;
+  }
+
+  &:last-child {
+    padding-bottom: 20px;
+  }
+
   @include arrow-link()
 }
 

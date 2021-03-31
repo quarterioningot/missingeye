@@ -7,6 +7,12 @@ privacy-notice {
   background-color: var(--accent-color);
   padding: 30px 20px;
 
+  p {
+    &:first-child {
+      padding-top: 30px;
+    }
+  }
+
   button {
     display: block;
     margin: 10px auto;
