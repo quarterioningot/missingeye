@@ -1,0 +1,17 @@
+privacy-notice {
+  display: block;
+  position: fixed;
+  top: 30vh;
+  text-align: justify;
+  margin: 0 30%;
+  background-color: var(--accent-color);
+  padding: 30px 20px;
+
+  button {
+    display: block;
+    margin: 10px auto;
+    width: 50px;
+    height: 25px;
+    cursor: grab;
+  }
+}

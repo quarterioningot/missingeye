@@ -5,6 +5,7 @@ import { LoadContent } from "./content.js"
 import { LoadContact } from "./contact.js"
 import { LoadBackground } from "./background.js"
 import { LoadCommander } from "./commander.js"
+import { LoadPrivacyNotice } from "./privacy-notice.js"
 import { LoadAudioPlayer } from "./audio-player.js"
 import { LoadCanvasWrangler } from "./canvas-wrangler.js"
 import { ROLL_RESULT_EVENT } from "./events/events.js";
@@ -16,6 +17,7 @@ LoadContent();
 LoadContact();
 LoadBackground();
 LoadCommander();
+LoadPrivacyNotice();
 LoadAudioPlayer();
 LoadCanvasWrangler();
 
