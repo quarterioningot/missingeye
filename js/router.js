@@ -53,7 +53,7 @@ class Router extends HTMLElement {
             const url = cleanUrl(this._baseUrl + pageUri + ".html");
             const response = await fetch(url);
             if (response.status !== 200) {
-                alert("You're a naughty one, aren't you... ;)");
+                alert("You are not authorized to view these memories, please contact the administrator.");
             }
 
             const responseData = await response.text();
