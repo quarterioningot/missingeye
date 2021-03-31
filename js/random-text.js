@@ -14,8 +14,7 @@ class RandomText extends HTMLElement {
         super();
 
         const charCount = parseInt(this.getAttribute("char-count")) || 1;
-        const filler = Array(charCount).fill(".", 0, charCount).join("");
-        this.innerText = filler;
+        this.innerText = Array(charCount).fill(".", 0, charCount).join("");
 
         this._start(charCount);
     }
@@ -31,7 +30,7 @@ class RandomText extends HTMLElement {
             isRandomizing = true;
             const explodedText = this.innerText.split("");
             for (let i = 0; i < charCount; i++) {
-                const randomIndex = Math.round(Math.random() * CHARSET.length);
+                const randomIndex = Math.round(Math.random() * (CHARSET.length - 1));
                 explodedText[i] = CHARSET[randomIndex];
             }
             this.innerText = explodedText.join("");

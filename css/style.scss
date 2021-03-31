@@ -228,11 +228,7 @@ img {
   padding: 5px 30px;
 }
 
-ul {
-  li {
-    line-height: 1.2;
-  }
-
+@mixin arrow-link {
   a {
     &:before,
     &:after {
@@ -264,6 +260,14 @@ ul {
   }
 }
 
+ul {
+  li {
+    line-height: 1.2;
+  }
+
+  @include arrow-link()
+}
+
 p {
   &:first-child {
     padding-top: 120px;
@@ -276,6 +280,8 @@ p {
   &:last-child {
     padding-bottom: 20px;
   }
+
+  @include arrow-link()
 }
 
 a {
@@ -344,7 +350,7 @@ a {
 }
 
 random-text {
-  font-family: Monospaced, FreeMono, Serif;
+  font-family: monospace;
 }
 
 console-commander {
