@@ -1,4 +1,4 @@
-import * as THREE from "https://unpkg.com/three/build/three.module.js";
+import * as THREE from "three";
 import {FloatingBokeh} from "./bubbles/particles/presets/floating-bokeh.js"
 import {ShootingBokeh} from "./bubbles/particles/presets/shooting-bokeh.js"
 import {process} from "./bubbles/animations/translate.js"
