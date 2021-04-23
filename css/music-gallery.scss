@@ -1,10 +1,8 @@
-.music-gallery {
-  $imageWidth: 150px;
-  $imageHeight: 150px;
-  padding: 30px;
+$imageWidth: 150px;
+$imageHeight: 150px;
 
-  audio {
-  }
+.music-gallery {
+  padding: 30px;
 
   audio-player {
     display: grid;
@@ -79,79 +77,131 @@
       grid-column-end: 2;
       grid-row-start: 3;
       grid-row-end: 3;
-      background-color: transparent;
+    }
+  }
+}
 
-      @media screen and (-webkit-min-device-pixel-ratio:0) {
-        -webkit-appearance: none;
-        height: 3px;
-        outline: 0 solid transparent;
-        background-color: var(--accent-color);
-        overflow: visible;
-        margin: 8px 0;
+audio-player {
 
-        &::-webkit-slider-thumb {
-          width: 15px;
-          -webkit-appearance: none;
-          height: 15px;
-          cursor: ew-resize;
-          background: var(--accent-color);
-          border-radius: 100%;
-          overflow: visible;
-        }
+  img {
+    padding: 0;
+  }
 
-        &::-webkit-slider-runnable-track {
-          color: #13bba4;
-        }
-      }
 
-      &::-moz-range-thumb {
-        border: 3 solid var(--accent-color );
-        background-color: var(--accent-color);
-      }
+  &:hover {
+    a {
+      opacity: 0.75;
+    }
+  }
 
-      &::-moz-range-progress {
-        background-color: var(--accent-color);
-      }
+  h3, p, figure, img {
+    padding: 0;
+    margin: 0;
+  }
 
-      &::-moz-range-track {
-        background-color: var(--accent-color);
-      }
+  figure {
+    position: relative;
+    width: $imageWidth;
+    height: $imageHeight;
 
+    img {
+      width: $imageWidth;
+      height: $imageHeight;
+      object-fit: cover;
+      display: block;
     }
 
-    .collapsible-wrapper {
-      margin-top: 10px;
-      text-align: right;
+    a {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      vertical-align: super;
+      align-content: space-around;
+      font-size: 4rem;
+      text-align: center;
+      align-items: center;
+      background-color: var(--base-color);
+      opacity: 0.1;
+    }
+  }
 
-      .collapsible-content {
-        max-height: 0;
-        text-align: left;
-        overflow: hidden;
-        transition: max-height .25s ease-in-out;
+  input[type="range"] {
+    background-color: transparent;
+
+    @media screen and (-webkit-min-device-pixel-ratio:0) {
+      -webkit-appearance: none;
+      height: 3px;
+      outline: 0 solid transparent;
+      background-color: var(--accent-color);
+      overflow: visible;
+      margin: 8px 0;
+
+      &::-webkit-slider-thumb {
+        width: 15px;
+        -webkit-appearance: none;
+        height: 15px;
+        cursor: ew-resize;
+        background: var(--accent-color);
+        border-radius: 100%;
+        overflow: visible;
       }
 
-      input[type="checkbox"] {
-        display: none;
-
-        &:checked + label::before {
-          content: 'less info';
-        }
-
-        &:checked + label + .collapsible-content {
-          max-height: 100vh;
-        }
+      &::-webkit-slider-runnable-track {
+        color: #13bba4;
       }
+    }
 
-      label {
-        display: block;
-        cursor: pointer;
-        transition: all 0.25s ease-out;
+    &::-moz-range-thumb {
+      border: 3 solid var(--accent-color );
+      background-color: var(--accent-color);
+    }
 
-        &::before {
-          content: 'more info';
-          display: inline-block;
-        }
-      }
+    &::-moz-range-progress {
+      background-color: var(--accent-color);
+    }
+
+    &::-moz-range-track {
+      background-color: var(--accent-color);
+    }
+
+  }
+}
+
+.collapsible-wrapper {
+  margin-top: 10px;
+  text-align: right;
+
+  .collapsible-content {
+    max-height: 0;
+    text-align: left;
+    overflow: hidden;
+    transition: max-height .25s ease-in-out;
+  }
+
+  input[type="checkbox"] {
+    display: none;
+
+    &:checked + label::before {
+      content: 'less info';
+    }
+
+    &:checked + label + .collapsible-content {
+      max-height: 100vh;
+    }
+  }
+
+  label {
+    display: block;
+    cursor: pointer;
+    transition: all 0.25s ease-out;
+
+    &::before {
+      content: 'more info';
+      display: inline-block;
     }
   }
 }

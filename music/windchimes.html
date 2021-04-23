@@ -1,0 +1,69 @@
+<!DOCTYPE html><!--suppress HtmlUnknownTarget --><html lang="en" xmlns="http://www.w3.org/1999/html"><head>
+    <meta charset="UTF-8">
+    <base href="https://missingeye.com/" target="_blank">
+    <title>Little bite or a big bite?</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body>
+
+<div class="main-content">
+    <nav class="main-menu">
+        <a class="item" href="/" data-menu="home">Home</a>
+        <a class="item" href="/about">About</a>
+        <!-- <a class="item" href="/contact">Contact</a> -->
+    </nav>
+
+    <simple-router>
+        <section class="document-section">
+            <h1>Windchimes</h1>
+            <p>
+                This piece is a reflection of a memory and emotion, happiness and sadness. Recently a
+                beautiful story about a characters childhood memory of his parents and the cry of a wind
+                chime gave me inspiration to recreate it as an experience for the ear.
+            </p>
+
+            <div class="collapsible-wrapper">
+                <input id="collapsible-windchimes" type="checkbox">
+                <label for="collapsible-windchimes"></label>
+                <p class="collapsible-content">
+                    Sample Attribution
+                    <br>
+                    freesound.org/people/WilliamJMeyer/sounds/444930/
+                    <br>
+                    freesound.org/people/bdvictor/sounds/240914/
+                    <br>
+                    freesound.org/people/monotraum/sounds/208809/
+                    <br>
+                    freesound.org/people/fellur/sounds/429724/
+                    <br>
+                    freesound.org/people/kyles/sounds/454378/
+                    <br>
+                    freesound.org/people/ashjenx/sounds/135387/
+                    <br>
+                    freesound.org/people/felix.blume/sounds/234754/
+                </p>
+            </div>
+
+            <audio-player src="assets/music/gallery/windchimes/windchimes.mp3">
+                <figure>
+                    <img src="assets/music/gallery/windchimes/windchimes.jpg" alt="album art">
+                    <a class="playpause-button">LOD</a>
+                </figure>
+                <input type="range" min="0" max="0" value="0">
+            </audio-player>
+        </section>
+    </simple-router>
+
+    <footer>
+        <console-commander></console-commander>
+    </footer>
+</div>
+
+<privacy-notice></privacy-notice>
+
+<div class="loader-blinds"></div>
+<script type="module" src="js/script.js"></script>
+
+
+</body></html>
